@@ -3,7 +3,7 @@ import os
 import sys
 
 
-if __name__ == "__main__≡jedi=1, ":≡ (key, *failobj=None*) ≡jedi≡"
+if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE",
                           "paymentpal.tests.south_settings")
 
