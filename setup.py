@@ -30,6 +30,7 @@ setup(
         'coverage',
         'django-coverage',
         'mock',
+        'django-libs'
     ],
     test_suite='paymentpal.tests.runtests.runtests',
 )
