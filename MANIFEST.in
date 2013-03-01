@@ -5,5 +5,5 @@ include CHANGELOG.txt
 include README.md
 graft paymantpal
 global-exclude *.orig *.pyc *.log
-prune paymentpal/tests/coverage/
-prune paymentpal/.ropeproject/
+prune paypal_express_checkout/tests/coverage/
+prune paypal_express_checkout/.ropeproject/

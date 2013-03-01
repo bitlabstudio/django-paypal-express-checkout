@@ -5,7 +5,7 @@ import sys
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE",
-                          "paymentpal.tests.south_settings")
+                          "paypal_express_checkout.tests.south_settings")
 
     from django.core.management import execute_from_command_line
 

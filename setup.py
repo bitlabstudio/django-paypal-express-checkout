@@ -1,6 +1,6 @@
 import os
 from setuptools import setup, find_packages
-import paymentpal
+import paypal_express_checkout
 
 
 def read(fname):
@@ -11,16 +11,16 @@ def read(fname):
 
 
 setup(
-    name="django-paymentpal",
-    version=paymentpal.__version__,
+    name="django-paypal-express-checkout",
+    version=paypal_express_checkout.__version__,
     description=read('DESCRIPTION'),
     long_description=read('README.rst'),
     license='The MIT License',
     platforms=['OS Independent'],
-    keywords='django, url, paypal, paymentpal, API',
+    keywords='django, url, paypal, paypal_express_checkout, API',
     author='Daniel Kaufhold',
     author_email='daniel.kaufhold@bitmazk.com',
-    url="https://github.com/bitmazk/django-paymentpal",
+    url="https://github.com/bitmazk/django-paypal-express-checkout",
     packages=find_packages(),
     include_package_data=True,
     tests_require=[
@@ -32,5 +32,5 @@ setup(
         'mock',
         'django-libs'
     ],
-    test_suite='paymentpal.tests.runtests.runtests',
+    test_suite='paypal_express_checkout.tests.runtests.runtests',
 )
