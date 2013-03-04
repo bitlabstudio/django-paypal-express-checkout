@@ -32,9 +32,36 @@ class DoExpressCheckoutView(PaymentViewMixin, FormView):
     form_class = DoExpressCheckoutForm
     template_name = 'paypal_express_checkout/confirm_checkout.html'
 
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        """Recalls the transaction using the paypal token."""
+        # when this view posts to itself it sends the info in the post data
+        self.token = request.GET.get('token')
+        self.payerID = request.GET.get('PayerID')
+        if not self.token:
+            self.token = request.POST.get('token')
+        if not self.payerID:
+            self.payerID = request.POST.get('PayerID')
+        try:
+            self.transaction = PaymentTransaction.objects.get(
+                user=request.user, transaction_id=self.token)
+        except PaymentTransaction.DoesNotExist:
+            raise Http404
+        return super(DoExpressCheckoutView, self).dispatch(
+            request, *args, **kwargs)
+
     def form_valid(self, form):
         """When the form is valid, the form should handle the PayPal call."""
         return form.do_checkout()
+
+    def get_context_data(self, **kwargs):
+        ctx = super(DoExpressCheckoutView, self).get_context_data(**kwargs)
+        ctx.update({
+            'value': self.transaction.value,
+            'token': self.token,
+            'payerid': self.payerID,
+        })
+        return ctx
 
     def get_form_kwargs(self):
         kwargs = super(DoExpressCheckoutView, self).get_form_kwargs()
