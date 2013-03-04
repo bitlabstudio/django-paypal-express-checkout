@@ -117,9 +117,9 @@ class SetExpressCheckoutViewTestCase(PaymentViewTestCaseMixin, TestCase):
 
     def get_post_data(self):
         return {
-            'USER': settings.API_USER,
-            'PWD': settings.API_PASSWORD,
-            'SIGNATURE': settings.API_SIGNATURE,
+            'USER': settings.PAYPAL_USER,
+            'PWD': settings.PAYPAL_PWD,
+            'SIGNATURE': settings.PAYPAL_SIGNATURE,
             'VERSION': '91.0',
             'PAYMENTREQUEST_0_PAYMENTACTION': 'Sale',
             'METHOD': 'SetExpressCheckout',

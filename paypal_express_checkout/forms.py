@@ -31,7 +31,7 @@ class PayPalFormMixin(object):
         """
         try:
             response = urllib2.urlopen(
-                settings.API_PAYPAL, data=urllib.urlencode(post_data))
+                settings.PAYPAL_PAYPAL, data=urllib.urlencode(post_data))
         except (
                 urllib2.HTTPError,
                 urllib2.URLError,
@@ -163,7 +163,7 @@ class SetExpressCheckoutForm(PayPalFormMixin, forms.Form):
                 status=PAYMENT_STATUS['checkout'],
             )
             transaction.save()
-            return redirect(settings.LOGIN_PAYPAL + token)
+            return redirect(settings.PAYPAL_LOGIN_URL + token)
         elif parsed_response.get('ACK')[0] == 'Failure':
             self.log_error(parsed_response)
             return redirect(reverse('paypal_error'))

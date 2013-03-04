@@ -28,9 +28,9 @@ class SetExpressCheckoutFormTestCase(TestCase):
         }
 
         self.expected_response = {
-            'USER': settings.API_USER,
-            'PWD': settings.API_PASSWORD,
-            'SIGNATURE': settings.API_SIGNATURE,
+            'USER': settings.PAYPAL_USER,
+            'PWD': settings.PAYPAL_PWD,
+            'SIGNATURE': settings.PAYPAL_SIGNATURE,
             'VERSION': '91.0',
             'PAYMENTREQUEST_0_PAYMENTACTION': 'Sale',
             'METHOD': 'SetExpressCheckout',
@@ -70,7 +70,7 @@ class SetExpressCheckoutFormTestCase(TestCase):
         self.assertEqual(resp.status_code, 302, msg=(
             'Response should redirect.'))
         self.assertEqual(
-            resp.items()[1][1], settings.LOGIN_PAYPAL + 'abc123', msg=(
+            resp.items()[1][1], settings.PAYPAL_LOGIN_URL + 'abc123', msg=(
                 'Should redirect to PayPal Login.'))
 
         self.paypal_response.update({

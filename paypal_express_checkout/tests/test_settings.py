@@ -72,26 +72,11 @@ LOGIN_URL = '/'
 # ======================
 HOSTNAME = 'http://localhost:8000'  # without trailing slash
 
-API_PAYPAL = 'https://api.sandbox.paypal.com/nvp'
+PAYPAL_API_URL = 'https://api.sandbox.paypal.com/nvp'
 
-LOGIN_PAYPAL = (
+PAYPAL_LOGIN_URL = (
     'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token='  # NOQA
 )
-
-# [OPTIONAL]
-# If set, this is set to a string representing a model and its field,
-# where the paid amount should be added to. E.g.: 'UserProfile.account_balance'
-# ADD_TO_FIELD = ''
-
-# If the user should be able to set an amount for the bought item.
-# If False, the amount defaults to 1
-SET_QUANTITY = True
-
-# Define what should be displayed in case of SET_QUANTITY is True.
-# Is not used, when SET_QUANTITY is False.
-# Must be a tuple with ('singular', 'plural').
-# e.g. ('year', 'years')
-QUANTITY_NAME = ('piece', 'pieces')
 
 # [OPTIONAL]
 # The general description of all Sales (not the one of a single item!)
@@ -99,6 +84,6 @@ SALE_DESCRIPTION = 'Your payment to {0}'.format(HOSTNAME)
 
 
 # Settings for local_settings.py
-API_USER = 'api_user@example.com'
-API_PASSWORD = 'your api password'
-API_SIGNATURE = 'your api signature'
+PAYPAL_USER = 'api_user@example.com'
+PAYPAL_PWD = 'your api password'
+PAYPAL_SIGNATURE = 'your api signature'
