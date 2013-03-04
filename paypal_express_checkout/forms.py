@@ -74,8 +74,8 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
         except PaymentTransaction.DoesNotExist:
             raise Http404
 
-    def do_checkout(self):
-        """Calls PayPal to make the 'DoExpressCheckoutPayment' procedure."""
+    def get_post_data(self):
+        """Creates the post data dictionary to send to PayPal."""
         post_data = PAYPAL_DEFAULTS
         post_data.update({
             'METHOD': 'DoExpressCheckoutPayment',
@@ -83,6 +83,11 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
             'PAYERID': self.data['payerID'],
             'PAYMENTREQUEST_0_AMT': self.transaction.value,
         })
+        return post_data
+
+    def do_checkout(self):
+        """Calls PayPal to make the 'DoExpressCheckoutPayment' procedure."""
+        post_data = self.get_post_data()
         parsed_response = self.call_paypal(post_data)
         if parsed_response.get('ACK')[0] == 'Success':
             transaction_id = parsed_response.get(
@@ -114,24 +119,14 @@ class SetExpressCheckoutForm(PayPalFormMixin, forms.Form):
         self.user = user
         super(SetExpressCheckoutForm, self).__init__(*args, **kwargs)
 
-    def set_checkout(self, items):
-        """
-        Calls PayPal to make the 'SetExpressCheckout' procedure.
-
-        :param items: A list of ``Item`` objects.
-
-        """
-
-        # Gathering data
-
-        if type(items) != list:
-            items = [items]
+    def get_post_data(self, items):
+        """Creates the post data dictionary to send to PayPal."""
         post_data = PAYPAL_DEFAULTS
-        quantity = self.cleaned_data.get('quantity')
         # TODO currently the implementation only allows one single item, so
         # this method is just expanded for future use and quantity has to be
         # set for each item
         total_value = 0
+        quantity = self.cleaned_data.get('quantity')
         for counter, item in enumerate(items):
             total_value += item.value * quantity
             post_data.update({
@@ -149,9 +144,25 @@ class SetExpressCheckoutForm(PayPalFormMixin, forms.Form):
             'CANCELURL': settings.HOSTNAME + reverse(
                 'paypal_canceled')
         })
+        return post_data
+
+    def set_checkout(self, items):
+        """
+        Calls PayPal to make the 'SetExpressCheckout' procedure.
+
+        :param items: A list of ``Item`` objects.
+
+        """
+
+        # Gathering data
+
+        if type(items) != list:
+            items = [items]
+
+        # fetching the post data
+        post_data = self.get_post_data(items)
 
         # making the post to paypal and handling the results
-
         parsed_response = self.call_paypal(post_data)
         if parsed_response.get('ACK')[0] == 'Success':
             token = parsed_response.get('TOKEN')[0]
@@ -159,7 +170,7 @@ class SetExpressCheckoutForm(PayPalFormMixin, forms.Form):
                 user=self.user,
                 date=now(),
                 transaction_id=token,
-                value=total_value,
+                value=post_data['PAYMENTREQUEST_0_AMT'],
                 status=PAYMENT_STATUS['checkout'],
             )
             transaction.save()
