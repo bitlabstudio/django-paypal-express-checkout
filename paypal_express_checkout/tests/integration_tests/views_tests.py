@@ -8,11 +8,12 @@ from django.test import TestCase
 from django_libs.tests.factories import UserFactory
 from django_libs.tests.mixins import ViewTestMixin
 
-from paypal_express_checkout.forms import PayPalFormMixin
-from paypal_express_checkout.tests.factories import (
+from ..factories import (
     ItemFactory,
     PaymentTransactionFactory,
 )
+from ...forms import PayPalFormMixin
+from ...signals import payment_completed
 
 
 class PaymentViewTestCaseMixin(ViewTestMixin):
@@ -160,3 +161,31 @@ class SetExpressCheckoutViewTestCase(PaymentViewTestCaseMixin, TestCase):
     def test_view(self):
         self.should_redirect_to_login_when_anonymous()
         self.is_callable('post', data=self.get_post_data(), user=self.user)
+
+
+class IPNListenerViewTestCase(ViewTestMixin, TestCase):
+    """Tests for the ``IPNListenerView`` view class."""
+    longMessage = True
+
+    def get_view_name(self):
+        return 'ipn_listener'
+
+    def receive(self, signal, sender, transaction):
+        self.signal = signal
+        self.sender = sender
+        self.received_transaction = transaction
+
+    def setUp(self):
+        self.transaction = PaymentTransactionFactory()
+        self.valid_data = {
+            'txn_id': self.transaction.transaction_id,
+            'payment_status': 'Completed',
+        }
+        self.ipn_received = False
+        self.signal = payment_completed.connect(self.receive)
+
+    def test_is_callable_and_sends_signal(self):
+        self.is_callable(method='post', data=self.valid_data)
+
+        self.assertEqual(self.received_transaction, self.transaction, msg=(
+            'When the IPNListenerView is called, it should send a signal.'))

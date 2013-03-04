@@ -3,6 +3,7 @@ from django.conf.urls.defaults import patterns, url
 
 from paypal_express_checkout.views import (
     DoExpressCheckoutView,
+    IPNListenerView,
     PaymentCancelView,
     PaymentErrorView,
     PaymentSuccessView,
@@ -40,6 +41,12 @@ urlpatterns = patterns(
         r'^success/$',
         PaymentSuccessView.as_view(),
         name='paypal_success',
+    ),
+
+    url(
+        r'ipn/$',
+        IPNListenerView.as_view(),
+        name='ipn_listener',
     ),
 
 )

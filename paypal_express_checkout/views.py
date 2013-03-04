@@ -1,12 +1,16 @@
 """Views for the ``paypal_express_checkout`` app."""
 from django.contrib.auth.decorators import login_required
-from django.views.generic import FormView, TemplateView
+from django.http import Http404, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import FormView, TemplateView, View
 from django.utils.decorators import method_decorator
 
-from paypal_express_checkout.forms import (
+from .forms import (
     DoExpressCheckoutForm,
     SetExpressCheckoutForm,
 )
+from .models import PaymentTransaction
+from .signals import payment_completed
 
 
 class PaymentViewMixin(object):
@@ -71,3 +75,29 @@ class SetExpressCheckoutView(PaymentViewMixin, FormView):
         kwargs = super(SetExpressCheckoutView, self).get_form_kwargs()
         kwargs.update({'user': self.user})
         return kwargs
+
+
+class IPNListenerView(View):
+    """This view handles an IPN from PayPal."""
+    @csrf_exempt
+    def dispatch(self, request, *args, **kwargs):
+        transaction_id = request.POST.get('txn_id')
+        try:
+            self.payment_transaction = PaymentTransaction.objects.get(
+                transaction_id=transaction_id)
+        except PaymentTransaction.DoesNotExist:
+            raise Http404
+        return super(IPNListenerView, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        payment_status = request.POST.get('payment_status')
+        if payment_status == 'Completed':
+            payment_completed.send(self, transaction=self.payment_transaction)
+            self.payment_transaction.status = 'completed'
+            self.payment_transaction.save()
+            return HttpResponse()
+        elif payment_status == 'Expired' or payment_status == 'Denied'\
+                or payment_status == 'Failed':
+            self.payment_transaction.status = 'canceled'
+            self.payment_transaction.save()
+            return HttpResponse()
