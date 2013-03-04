@@ -41,7 +41,7 @@ class PayPalFormMixin(object):
             parsed_response = urlparse.parse_qs(response.read())
             return parsed_response
 
-    def log_error(self, error_message):
+    def log_error(self, error_message, transaction=None):
         """
         Saves error information as a ``PaymentTransactionError`` object.
 
@@ -52,6 +52,7 @@ class PayPalFormMixin(object):
         payment_error = PaymentTransactionError()
         payment_error.user = self.user
         payment_error.response = error_message
+        payment_error.transaction = transaction
         payment_error.save()
         return payment_error
 
@@ -97,7 +98,7 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
             self.transaction.save()
             return redirect(reverse('paypal_success'))
         elif parsed_response.get('ACK')[0] == 'Failure':
-            self.log_error(parsed_response)
+            self.log_error(parsed_response, self.transaction)
             return redirect(reverse('paypal_success'))
 
 

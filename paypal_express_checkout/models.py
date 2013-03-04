@@ -98,3 +98,9 @@ class PaymentTransactionError(models.Model):
     response = models.TextField(
         verbose_name=_('Response String'),
     )
+
+    transaction = models.ForeignKey(
+        PaymentTransaction,
+        blank=True, null=True,
+        verbose_name=_('Payment transaction'),
+    ),
