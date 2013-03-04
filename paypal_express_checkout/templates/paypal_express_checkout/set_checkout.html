@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+<form method="post" action=".">
+    {% csrf_token %}
+    <p>
+        {{ form.quantity }}
+    </p>
+    <p>
+        {{ form.item }}
+    </p>
+    <input class="btn-margin" id="payPalButton" type="submit" name="METHOD" value="" />
+</form>
