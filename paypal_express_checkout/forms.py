@@ -31,7 +31,7 @@ class PayPalFormMixin(object):
         """
         try:
             response = urllib2.urlopen(
-                settings.PAYPAL_PAYPAL, data=urllib.urlencode(post_data))
+                settings.PAYPAL_API_URL, data=urllib.urlencode(post_data))
         except (
                 urllib2.HTTPError,
                 urllib2.URLError,

@@ -71,6 +71,10 @@ class DoExpressCheckoutView(PaymentViewMixin, FormView):
     def get_form_kwargs(self):
         kwargs = super(DoExpressCheckoutView, self).get_form_kwargs()
         kwargs.update({'user': self.user})
+        # PayPal makes a GET request with the data, so we check if the GET data
+        # is populated and overwrite form data with it.
+        if any(self.request.GET):
+            kwargs.update({'data': self.request.GET})
         return kwargs
 
 
