@@ -114,7 +114,6 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin):
     """
     def __init__(self, user, *args, **kwargs):
         self.user = user
-        super(SetExpressCheckoutFormMixin, self).__init__(*args, **kwargs)
 
     def get_item(self):
         """Returns the item needed to build the post data."""
