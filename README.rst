@@ -45,15 +45,81 @@ Hook this app into your ``urls.py``::
     )
 
 
-TODO:
-Describe settings that need to be set in order for it to work.
+Add your hostname to the following settting: ::
 
+    HOSTNAME = 'http://example.com'  # without trailing slash
+
+For testing and development you might want to set the PayPal URLs to the
+sandbox ones in your ``local_settings.py``: ::
+
+    PAYPAL_API_URL = 'https://api.sandbox.paypal.com/nvp'
+    PAYPAL_LOGIN_URL = (
+        'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token='
+    )
+
+The following setting will be the description of all payments that are
+displayed when the user logs into his PayPal account for checkout: ::
+
+    SALE_DESCRIPTION = 'Your payment to {0}'.format(HOSTNAME)
+
+.. hint::
+
+    This is not the description of an Item!
+
+Finally you need to set the following settings to the user, password and
+signature PayPal will provide you with: ::
+
+    PAYPAL_USER = 'api_user@example.com'
+    PAYPAL_PWD = 'your api password'
+    PAYPAL_SIGNATURE = 'your api signature'
 
 Usage
 -----
 
-TODO:
-Describe usage.
+**Creating Items**
+
+First you should add an ``Item`` to your project. They can be easily added and
+updated via the Django admin.
+There you set ``Item.name`` as the display name of your item,
+``Item.description`` for a further description and ``Item.value`` for the price
+of this item.
+Your customer will then be able to chose between the items you provide and set
+a quantity for how much he wants to buy.
+
+**Overriding the form**
+
+If you seek for a more complex solution, at this point we provide the
+``SetExpressCheckoutFormMixin`` to allow you to customize the form that is used
+to process the checkout procedure.
+The minimum implementation should include: ::
+
+    class MyForm(SetExpressCheckoutFormMixin):
+    def get_item(self):
+        """Should return an Item object."""
+        item = Item(
+            ...
+        )
+        return item
+
+     def get_quantity(self):
+        """Returns a positive integer."""
+        ...
+        return postive_integer
+
+If you e.g. already have models ready to go and do not want to create Items for
+each and every one, you might want to use the ``get_item()`` method to
+re-assign the fields from your pre-existing model to our ``Item`` object.
+
+**Logging**
+
+Each payment is logged in our provided ``PaymentTransaction`` model.
+It can also easily be accessed via Django admin and will provide you with
+information to identify every payment in every status.
+
+Occasionally there might be an error during the payment process, that the will
+be logged in the ``PaymentTransactionError`` model.
+It stores information about exceptions or errorous PayPal responses that occur
+during a payment.
 
 Contribute
 ----------
