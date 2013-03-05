@@ -8,10 +8,17 @@ from django.utils.decorators import method_decorator
 from .constants import PAYMENT_STATUS
 from .forms import (
     DoExpressCheckoutForm,
-    SetExpressCheckoutForm,
 )
 from .models import PaymentTransaction
 from .signals import payment_completed
+from .settings import CHECKOUT_FORM
+
+
+# importing the name of the current form for SetExpressCheckout
+class_name = CHECKOUT_FORM.split('.')[-1]
+module_name = '.'.join(CHECKOUT_FORM.split('.')[:-1])
+module = __import__(module_name, fromlist=[class_name])
+SetExpressCheckoutForm = getattr(module, class_name)
 
 
 class PaymentViewMixin(object):

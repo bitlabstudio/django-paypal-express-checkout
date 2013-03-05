@@ -11,8 +11,8 @@ from django.http import Http404
 from django.utils.timezone import now
 from django.shortcuts import redirect
 
-from paypal_express_checkout.constants import PAYMENT_STATUS, PAYPAL_DEFAULTS
-from paypal_express_checkout.models import (
+from .constants import PAYMENT_STATUS, PAYPAL_DEFAULTS
+from .models import (
     Item,
     PaymentTransaction,
     PaymentTransactionError,
@@ -104,41 +104,42 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
             return redirect(reverse('paypal_error'))
 
 
-class SetExpressCheckoutForm(PayPalFormMixin, forms.Form):
+class SetExpressCheckoutFormMixin(PayPalFormMixin):
     """
-    Takes the input from the ``SetExpressCheckoutView``, validates it and
-    takes care of the PayPal API operations.
+    Base form class for all forms invoking the ``SetExpressCheckout`` PayPal
+    API operation, providing the general method skeleton.
+
+    Also this is to be used to construct custom forms.
 
     """
-    item = forms.ModelChoiceField(
-        queryset=Item.objects.all()
-    )
-
-    quantity = forms.IntegerField(
-        required=False,
-    )
-
     def __init__(self, user, *args, **kwargs):
         self.user = user
-        super(SetExpressCheckoutForm, self).__init__(*args, **kwargs)
+        super(SetExpressCheckoutFormMixin, self).__init__(*args, **kwargs)
 
-    def get_post_data(self, items):
+    def get_item(self):
+        """Returns the item needed to build the post data."""
+        raise NotImplementedError
+
+    def get_quantity(self):
+        """Returns the quantity of the item."""
+        raise NotImplementedError
+
+    def get_post_data(self, item):
         """Creates the post data dictionary to send to PayPal."""
         post_data = PAYPAL_DEFAULTS
         # TODO currently the implementation only allows one single item, so
         # this method is just expanded for future use and quantity has to be
         # set for each item
         total_value = 0
-        quantity = self.cleaned_data.get('quantity')
-        for counter, item in enumerate(items):
-            total_value += item.value * quantity
-            post_data.update({
-                'L_PAYMENTREQUEST_0_NAME{0}'.format(counter): item.name,
-                'L_PAYMENTREQUEST_0_DESC{0}'.format(counter): item.description,
-                'L_PAYMENTREQUEST_0_AMT{0}'.format(counter): item.value,
-                'L_PAYMENTREQUEST_0_QTY{0}'.format(counter): quantity,
-            })
+        quantity = self.get_quantity()
+        if not quantity:
+            quantity = 1
+        total_value += item.value * quantity
         post_data.update({
+            'L_PAYMENTREQUEST_0_NAME0': item.name,
+            'L_PAYMENTREQUEST_0_DESC0': item.description,
+            'L_PAYMENTREQUEST_0_AMT0': item.value,
+            'L_PAYMENTREQUEST_0_QTY0': quantity,
             'METHOD': 'SetExpressCheckout',
             'PAYMENTREQUEST_0_AMT': total_value,
             'PAYMENTREQUEST_0_ITEMAMT': total_value,
@@ -149,21 +150,16 @@ class SetExpressCheckoutForm(PayPalFormMixin, forms.Form):
         })
         return post_data
 
-    def set_checkout(self, items):
+    def set_checkout(self):
         """
         Calls PayPal to make the 'SetExpressCheckout' procedure.
 
         :param items: A list of ``Item`` objects.
 
         """
-
-        # Gathering data
-
-        if type(items) != list:
-            items = [items]
-
+        item = self.get_item()
         # fetching the post data
-        post_data = self.get_post_data(items)
+        post_data = self.get_post_data(item)
 
         # making the post to paypal and handling the results
         parsed_response = self.call_paypal(post_data)
@@ -181,3 +177,26 @@ class SetExpressCheckoutForm(PayPalFormMixin, forms.Form):
         elif parsed_response.get('ACK')[0] == 'Failure':
             self.log_error(parsed_response)
             return redirect(reverse('paypal_error'))
+
+
+class SetExpressCheckoutItemForm(SetExpressCheckoutFormMixin, forms.Form):
+    """
+    Takes the input from the ``SetExpressCheckoutView``, validates it and
+    takes care of the PayPal API operations.
+
+    """
+    item = forms.ModelChoiceField(
+        queryset=Item.objects.all()
+    )
+
+    quantity = forms.IntegerField(
+        required=False,
+    )
+
+    def get_item(self):
+        """Returns the item needed to build the post data."""
+        return self.cleaned_data.get('item')
+
+    def get_quantity(self):
+        """Returns the quantity of the item."""
+        return self.cleaned_data.get('quantity')

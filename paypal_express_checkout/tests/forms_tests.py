@@ -9,13 +9,13 @@ from django_libs.tests.factories import UserFactory
 
 from paypal_express_checkout.forms import (
     PayPalFormMixin,
-    SetExpressCheckoutForm,
+    SetExpressCheckoutItemForm,
 )
 from paypal_express_checkout.tests.factories import ItemFactory
 
 
-class SetExpressCheckoutFormTestCase(TestCase):
-    """Tests for the ``SetExpressCheckoutForm`` form class."""
+class SetExpressCheckoutItemFormTestCase(TestCase):
+    """Tests for the ``SetExpressCheckoutItemForm`` form class."""
     longMessage = True
 
     def setUp(self):
@@ -60,13 +60,13 @@ class SetExpressCheckoutFormTestCase(TestCase):
 
     def test_is_valid_and_calls_paypal(self):
         """
-        Test if the ``SetExpressCheckoutForm`` validates and calls PayPal.
+        Test if the ``SetExpressCheckoutItemForm`` validates and calls PayPal.
 
         """
-        form = SetExpressCheckoutForm(user=self.user, data=self.data)
+        form = SetExpressCheckoutItemForm(user=self.user, data=self.data)
         self.assertTrue(form.is_valid(), msg='The form should be valid.')
 
-        resp = form.set_checkout(self.item)
+        resp = form.set_checkout()
         self.assertEqual(resp.status_code, 302, msg=(
             'Response should redirect.'))
         self.assertEqual(
@@ -75,7 +75,7 @@ class SetExpressCheckoutFormTestCase(TestCase):
 
         self.paypal_response.update({
             'ACK': ['Failure']})
-        resp = form.set_checkout(self.item)
+        resp = form.set_checkout()
         self.assertEqual(resp.status_code, 302, msg=(
             'Response should redirect.'))
         self.assertEqual(
