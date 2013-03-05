@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import FormView, TemplateView, View
 from django.utils.decorators import method_decorator
 
+from .constants import PAYMENT_STATUS
 from .forms import (
     DoExpressCheckoutForm,
     SetExpressCheckoutForm,
@@ -118,13 +119,8 @@ class IPNListenerView(View):
 
     def post(self, request, *args, **kwargs):
         payment_status = request.POST.get('payment_status')
-        if payment_status == 'Completed':
+        self.payment_transaction.status = payment_status
+        self.payment_transaction.save()
+        if payment_status == PAYMENT_STATUS['completed']:
             payment_completed.send(self, transaction=self.payment_transaction)
-            self.payment_transaction.status = 'completed'
-            self.payment_transaction.save()
-            return HttpResponse()
-        elif payment_status == 'Expired' or payment_status == 'Denied'\
-                or payment_status == 'Failed':
-            self.payment_transaction.status = 'canceled'
-            self.payment_transaction.save()
-            return HttpResponse()
+        return HttpResponse()
