@@ -37,12 +37,9 @@ class DoExpressCheckoutView(PaymentViewMixin, FormView):
     def dispatch(self, request, *args, **kwargs):
         """Recalls the transaction using the paypal token."""
         # when this view posts to itself it sends the info in the post data
-        self.token = request.GET.get('token')
-        self.payerID = request.GET.get('PayerID')
-        if not self.token:
-            self.token = request.POST.get('token')
-        if not self.payerID:
-            self.payerID = request.POST.get('PayerID')
+        self.token = request.GET.get('token') or request.POST.get('token')
+        self.payerID = request.GET.get('PayerID') or request.POST.get(
+            'PayerID')
         try:
             self.transaction = PaymentTransaction.objects.get(
                 user=request.user, transaction_id=self.token)
