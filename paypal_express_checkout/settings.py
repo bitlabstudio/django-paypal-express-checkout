@@ -4,3 +4,11 @@ from django.conf import settings
 SET_CHECKOUT_FORM = getattr(
     settings, 'PAYPAL_SET_CHECKOUT_FORM',
     'paypal_express_checkout.forms.SetExpressCheckoutItemForm')
+
+LOGIN_URL = getattr(
+    settings, 'PAYPAL_LOGIN_URL',
+    'https://www.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=')
+
+API_URL = getattr(
+    settings, 'PAYPAL_API_URl',
+    'https://api.paypal.com/nvp')
