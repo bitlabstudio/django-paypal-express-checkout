@@ -94,12 +94,14 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
             transaction_id = parsed_response.get(
                 'PAYMENTINFO_0_TRANSACTIONID')[0]
             self.transaction.transaction_id = transaction_id
-            self.transaction.status = 'pending'
+            self.transaction.status = PAYMENT_STATUS['pending']
             self.transaction.save()
             return redirect(reverse('paypal_success'))
         elif parsed_response.get('ACK')[0] == 'Failure':
+            self.transaction.status = PAYMENT_STATUS['error']
+            self.transaction.save()
             self.log_error(parsed_response, self.transaction)
-            return redirect(reverse('paypal_success'))
+            return redirect(reverse('paypal_error'))
 
 
 class SetExpressCheckoutForm(PayPalFormMixin, forms.Form):
