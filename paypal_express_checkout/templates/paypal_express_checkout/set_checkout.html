@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block main %}
+    <h1>{% trans "Please choose what you want to buy." %}</h1>
     <form method="post" action=".">
         {% csrf_token %}
         <p>
