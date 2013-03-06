@@ -10,5 +10,5 @@ LOGIN_URL = getattr(
     'https://www.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=')
 
 API_URL = getattr(
-    settings, 'PAYPAL_API_URl',
+    settings, 'PAYPAL_API_URL',
     'https://api.paypal.com/nvp')
