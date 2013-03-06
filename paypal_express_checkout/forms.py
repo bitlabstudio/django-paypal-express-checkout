@@ -84,6 +84,8 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
             'TOKEN': self.transaction.transaction_id,
             'PAYERID': self.data['payerID'],
             'PAYMENTREQUEST_0_AMT': self.transaction.value,
+            'PAYMENTREQUEST_0_NOTIFYURL': settings.HOSTNAME + reverse(
+                'ipn_listener'),
         })
         return post_data
 
@@ -147,7 +149,7 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
             'RETURNURL': settings.HOSTNAME + reverse(
                 'paypal_confirm'),
             'CANCELURL': settings.HOSTNAME + reverse(
-                'paypal_canceled')
+                'paypal_canceled'),
         })
         return post_data
 
@@ -187,7 +189,8 @@ class SetExpressCheckoutItemForm(SetExpressCheckoutFormMixin):
 
     """
     item = forms.ModelChoiceField(
-        queryset=Item.objects.all()
+        queryset=Item.objects.all(),
+        empty_label=None,
     )
 
     quantity = forms.IntegerField(

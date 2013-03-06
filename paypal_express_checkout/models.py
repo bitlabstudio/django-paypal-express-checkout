@@ -32,6 +32,9 @@ class Item(models.Model):
         verbose_name=_('Value'),
     )
 
+    def __unicode__(self):
+        return '{0} - {1} $'.format(self.name, self.value)
+
 
 class PaymentTransaction(models.Model):
     """
