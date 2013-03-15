@@ -119,6 +119,22 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
         self.user = user
         super(SetExpressCheckoutFormMixin, self).__init__(*args, **kwargs)
 
+    def get_content_object(self):
+        """
+        Can be overridden to return a different content object for the
+        PaymentTransaction model.
+
+        This is useful if you want e.g. have one of your models assigned to the
+        transaction for easier identification.
+
+        """
+        # TODO for now it should return the user, although I know, that the
+        # user is already present in the user field of the PaymentTransaction
+        # model.
+        # Maybe we can remove the user field safely in exchange for the generic
+        # relation only.
+        return self.user
+
     def get_item(self):
         """Returns the item needed to build the post data."""
         raise NotImplementedError
@@ -147,11 +163,15 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
             'PAYMENTREQUEST_0_AMT': total_value,
             'PAYMENTREQUEST_0_ITEMAMT': total_value,
             'RETURNURL': settings.HOSTNAME + reverse(
-                'paypal_confirm'),
+                'paypal_confirm', kwargs=self.get_url_kwargs()),
             'CANCELURL': settings.HOSTNAME + reverse(
-                'paypal_canceled'),
+                'paypal_canceled', kwargs=self.get_url_kwargs()),
         })
         return post_data
+
+    def get_url_kwargs(self):
+        """Provide additional url kwargs, by overriding this method."""
+        return {}
 
     def set_checkout(self):
         """
@@ -174,6 +194,7 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
                 transaction_id=token,
                 value=post_data['PAYMENTREQUEST_0_AMT'],
                 status=PAYMENT_STATUS['checkout'],
+                content_object=self.get_content_object(),
             )
             transaction.save()
             return redirect(LOGIN_URL + token)
