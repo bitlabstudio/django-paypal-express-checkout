@@ -10,7 +10,7 @@ from .forms import (
     DoExpressCheckoutForm,
 )
 from .models import PaymentTransaction
-from .signals import payment_completed
+from .signals import payment_completed, payment_status_updated
 from .settings import SET_CHECKOUT_FORM
 
 
@@ -131,4 +131,5 @@ class IPNListenerView(View):
         self.payment_transaction.save()
         if payment_status == PAYMENT_STATUS['completed']:
             payment_completed.send(self, transaction=self.payment_transaction)
+        payment_status_updated.send(self, transaction=self.payment_transaction)
         return HttpResponse()
