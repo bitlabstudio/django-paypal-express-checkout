@@ -41,7 +41,7 @@ Hook this app into your ``urls.py``::
 
     urlpatterns = patterns('',
         ...
-        url(r'^paypal_express_checkout/$', include('paypal_express_checkout.urls')),
+        url(r'^checkout/', include('paypal_express_checkout.urls')),
     )
 
 
@@ -73,6 +73,11 @@ signature PayPal will provide you with: ::
     PAYPAL_PWD = 'your api password'
     PAYPAL_SIGNATURE = 'your api signature'
 
+Don't forget to run the South migrations::
+
+    ./manage.py migrate paypal_express_checkout
+
+
 Usage
 -----
 
@@ -94,17 +99,17 @@ to process the checkout procedure.
 The minimum implementation should include: ::
 
     class MyForm(SetExpressCheckoutFormMixin):
-    def get_item(self):
-        """Should return an Item object."""
-        item = Item(
-            ...
-        )
-        return item
+        def get_item(self):
+            """Should return an Item object."""
+            item = Item(
+                ...
+            )
+            return item
 
-     def get_quantity(self):
-        """Returns a positive integer."""
-        ...
-        return postive_integer
+        def get_quantity(self):
+            """Returns a positive integer."""
+            ...
+            return postive_integer
 
 If you e.g. already have models ready to go and do not want to create Items for
 each and every one, you might want to use the ``get_item()`` method to

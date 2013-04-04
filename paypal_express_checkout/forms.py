@@ -1,5 +1,6 @@
 """Forms for the ``paypal_express_checkout`` app."""
 import httplib
+import logging
 import urllib
 import urllib2
 import urlparse
@@ -8,8 +9,9 @@ from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404
-from django.utils.timezone import now
 from django.shortcuts import redirect
+from django.utils.timezone import now
+from django.utils.translation import ugettext_lazy as _
 
 from .constants import PAYMENT_STATUS, PAYPAL_DEFAULTS
 from .models import (
@@ -18,6 +20,9 @@ from .models import (
     PaymentTransactionError,
 )
 from .settings import API_URL, LOGIN_URL
+
+
+logger = logging.getLogger(__name__)
 
 
 class PayPalFormMixin(object):
@@ -136,29 +141,44 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
         return self.user
 
     def get_item(self):
-        """Returns the item needed to build the post data."""
-        raise NotImplementedError
+        """Obsolete. Just implement ``get_items_and_quantities``."""
+        raise NotImplemented
 
     def get_quantity(self):
-        """Returns the quantity of the item."""
-        raise NotImplementedError
+        """Obsolete. Just implement ``get_items_and_quantities``."""
+        raise NotImplemented
 
-    def get_post_data(self, item):
+    def get_items_and_quantities(self):
+        """
+        Returns the items and quantities.
+
+        Should return a list of tuples: ``[(item, quantity), ]``
+
+        """
+        logger.warning(
+            'Deprecation warning: Please implement get_items_and_quantities on'
+            ' your SetExpressCheckoutForm. Do not use get_item and'
+            ' get_quantity any more.')
+        return [(self.get_item(), self.get_quantity()), ]
+
+    def get_post_data(self):
         """Creates the post data dictionary to send to PayPal."""
+        item_quantity_list = self.get_items_and_quantities()
         post_data = PAYPAL_DEFAULTS
-        # TODO currently the implementation only allows one single item, so
-        # this method is just expanded for future use and quantity has to be
-        # set for each item
         total_value = 0
-        quantity = self.get_quantity()
-        if not quantity:
-            quantity = 1
-        total_value += item.value * quantity
+        for item, quantity in item_quantity_list:
+            if not quantity:
+                # If a user chose quantity 0, we don't include it
+                continue
+            total_value += item.value * quantity
+            post_data.update({
+                'L_PAYMENTREQUEST_0_NAME0': item.name,
+                'L_PAYMENTREQUEST_0_DESC0': item.description,
+                'L_PAYMENTREQUEST_0_AMT0': item.value,
+                'L_PAYMENTREQUEST_0_QTY0': quantity,
+            })
+
         post_data.update({
-            'L_PAYMENTREQUEST_0_NAME0': item.name,
-            'L_PAYMENTREQUEST_0_DESC0': item.description,
-            'L_PAYMENTREQUEST_0_AMT0': item.value,
-            'L_PAYMENTREQUEST_0_QTY0': quantity,
             'METHOD': 'SetExpressCheckout',
             'PAYMENTREQUEST_0_AMT': total_value,
             'PAYMENTREQUEST_0_ITEMAMT': total_value,
@@ -180,9 +200,7 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
         :param items: A list of ``Item`` objects.
 
         """
-        item = self.get_item()
-        # fetching the post data
-        post_data = self.get_post_data(item)
+        post_data = self.get_post_data()
 
         # making the post to paypal and handling the results
         parsed_response = self.call_paypal(post_data)
@@ -212,16 +230,28 @@ class SetExpressCheckoutItemForm(SetExpressCheckoutFormMixin):
     item = forms.ModelChoiceField(
         queryset=Item.objects.all(),
         empty_label=None,
+        label=_('Item'),
     )
 
     quantity = forms.IntegerField(
-        required=False,
+        label=_('Quantity'),
     )
 
     def get_item(self):
-        """Returns the item needed to build the post data."""
+        """Keeping this for backwards compatibility."""
         return self.cleaned_data.get('item')
 
     def get_quantity(self):
-        """Returns the quantity of the item."""
+        """Keeping this for backwards compatibility."""
         return self.cleaned_data.get('quantity')
+
+    def get_items_and_quantities(self):
+        """
+        Returns the items and quantities.
+
+        Should return a list of tuples.
+
+        """
+        return [
+            (self.get_item(), self.get_quantity()),
+        ]
