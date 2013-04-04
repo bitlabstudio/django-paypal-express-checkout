@@ -1,5 +1,6 @@
 """Tests for the forms of the ``paypal_express_checkout`` app."""
-from mock import Mock
+from mock import Mock, PropertyMock, patch
+from httplib import HTTPException
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -12,6 +13,32 @@ from paypal_express_checkout.forms import (
     SetExpressCheckoutItemForm,
 )
 from paypal_express_checkout.tests.factories import ItemFactory
+
+
+class PayPalFormMixinTestCase(TestCase):
+    """Tests for the ``PayPalFormMixin`` class."""
+    longMessage = True
+
+    def setUp(self):
+        super(PayPalFormMixinTestCase, self).setUp()
+        self.paypal_response = 'ACK=Success&TOKEN=abc123'
+
+    @patch('paypal_express_checkout.forms.urllib2')
+    def test_call_paypal(self, urllib2_mock):
+        mixin = PayPalFormMixin()
+
+        response_mock = Mock()
+        response_mock.read = Mock(return_value=self.paypal_response)
+        urllib2_mock.urlopen.return_value = response_mock
+        response = mixin.call_paypal({})
+        self.assertEqual(response['ACK'], ['Success'], msg=(
+            'Should parse the response from paypal and return it as a dict'))
+
+        with patch.object(mixin, 'log_error') as log_error_mock:
+            urllib2_mock.urlopen = PropertyMock(side_effect=HTTPException)
+            mixin.call_paypal({})
+            self.assertEqual(log_error_mock.call_count, 1, msg=(
+                'Should log an error if calling the PayPal API fails.'))
 
 
 class SetExpressCheckoutItemFormTestCase(TestCase):
