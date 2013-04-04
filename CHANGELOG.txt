@@ -1,5 +1,7 @@
 === ongoing ===
 
+=== 0.2 ===
+
 - The SetExpressCheckoutItemForm needs to implement a method called 
   get_items_and_quantities now. get_item and get_quantity are obsolete now.
 - This allows us to hand over more than just one item to paypal 
