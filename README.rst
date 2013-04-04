@@ -99,21 +99,14 @@ to process the checkout procedure.
 The minimum implementation should include: ::
 
     class MyForm(SetExpressCheckoutFormMixin):
-        def get_item(self):
-            """Should return an Item object."""
-            item = Item(
-                ...
-            )
-            return item
+        def get_items_and_quantities(self):
+            item = Item.objects.get(pk=1)
+            quantity = 1
+            return [(item, quantity), ]
 
-        def get_quantity(self):
-            """Returns a positive integer."""
-            ...
-            return postive_integer
+Have a look at our ``paypal_express_checkout.forms.SetExpressCheckoutForm``
+example implementation for a better understanding.
 
-If you e.g. already have models ready to go and do not want to create Items for
-each and every one, you might want to use the ``get_item()`` method to
-re-assign the fields from your pre-existing model to our ``Item`` object.
 
 **Logging**
 
