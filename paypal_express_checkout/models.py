@@ -94,6 +94,51 @@ class PaymentTransaction(models.Model):
         verbose_name=_('Payment status'),
     )
 
+    class Meta:
+        ordering = ['-date', 'transaction_id', ]
+
+    def __unicode__(self):
+        return self.transaction_id
+
+
+class PurchasedItem(models.Model):
+    """
+    Keeps track of which user purchased which items (and their quantities).
+
+    This helps you to find out if and what your users have purchased.
+
+    :user: FK to the user who made the purchase.
+    :transaction: The transaction that belongs to this purchase
+    :item: The item that belongs to this purchase
+    :quantity: The quantity of items that has been purchased
+
+    """
+    user = models.ForeignKey(
+        'auth.User',
+        verbose_name=_('User'),
+    )
+
+    transaction = models.ForeignKey(
+        PaymentTransaction,
+        verbose_name=_('Transaction'),
+    )
+
+    item = models.ForeignKey(
+        Item,
+        verbose_name=_('Item'),
+    )
+
+    quantity = models.PositiveIntegerField(
+        verbose_name=_('Quantity'),
+    )
+
+    class Meta:
+        ordering = ['-transaction__date', 'transaction__transaction_id', ]
+
+    def __unicode__(self):
+        return '{0} {1} of {2} [{3}]'.format(
+            self.quantity, self.item, self.user.email, self.transaction)
+
 
 class PaymentTransactionError(models.Model):
     """

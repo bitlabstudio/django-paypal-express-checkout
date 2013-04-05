@@ -18,6 +18,7 @@ from .models import (
     Item,
     PaymentTransaction,
     PaymentTransactionError,
+    PurchasedItem,
 )
 from .settings import API_URL, LOGIN_URL
 
@@ -161,9 +162,8 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
             ' get_quantity any more.')
         return [(self.get_item(), self.get_quantity()), ]
 
-    def get_post_data(self):
+    def get_post_data(self, item_quantity_list):
         """Creates the post data dictionary to send to PayPal."""
-        item_quantity_list = self.get_items_and_quantities()
         post_data = PAYPAL_DEFAULTS
         total_value = 0
         for item, quantity in item_quantity_list:
@@ -200,7 +200,8 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
         :param items: A list of ``Item`` objects.
 
         """
-        post_data = self.get_post_data()
+        item_quantity_list = self.get_items_and_quantities()
+        post_data = self.get_post_data(item_quantity_list)
 
         # making the post to paypal and handling the results
         parsed_response = self.call_paypal(post_data)
@@ -215,6 +216,12 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
                 content_object=self.get_content_object(),
             )
             transaction.save()
+            for item, quantity in item_quantity_list:
+                if not quantity:
+                    continue
+                PurchasedItem.objects.create(
+                    user=self.user, transaction=transaction, item=item,
+                    quantity=quantity)
             return redirect(LOGIN_URL + token)
         elif parsed_response.get('ACK')[0] == 'Failure':
             self.log_error(parsed_response)

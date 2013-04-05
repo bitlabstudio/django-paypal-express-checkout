@@ -5,7 +5,7 @@
     <form method="post" action=".">
         {% csrf_token %}
         <p>{% trans "Please confirm the payment of" %} {{ value }} $!</p>
-        <input id="payPalButton" type="submit" name="METHOD" value="" />
+        <input id="payPalButton" type="submit" name="METHOD" value="{% trans "Confirm payment" %}" />
         <input type="hidden" name="token" value="{{ token }}" />
         <input type="hidden" name="payerID" value="{{ payerid }}" />
     </form>

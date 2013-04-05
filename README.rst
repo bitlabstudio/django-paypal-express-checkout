@@ -49,10 +49,16 @@ Add your hostname to the following settting: ::
 
     HOSTNAME = 'http://example.com'  # without trailing slash
 
+In case you want to test your checkout view in the browser locally, you need
+to install something like `localtunnel <http://localtunnel.com/>`_ and set
+your hostname to your localtunnel url: ::
+
+    HOSTNAME = 'http://XXXX.localtunnel.com'
+
 For testing and development you might want to set the PayPal URLs to the
 sandbox ones in your ``local_settings.py``: ::
 
-    PAYPAL_API_URL = 'https://api.sandbox.paypal.com/nvp'
+    PAYPAL_API_URL = 'https://api-3t.sandbox.paypal.com/nvp'
     PAYPAL_LOGIN_URL = (
         'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token='
     )
@@ -60,7 +66,7 @@ sandbox ones in your ``local_settings.py``: ::
 The following setting will be the description of all payments that are
 displayed when the user logs into his PayPal account for checkout: ::
 
-    SALE_DESCRIPTION = 'Your payment to {0}'.format(HOSTNAME)
+    SALE_DESCRIPTION = 'Your payment to Foobar Inc.'
 
 .. hint::
 
@@ -69,7 +75,7 @@ displayed when the user logs into his PayPal account for checkout: ::
 Finally you need to set the following settings to the user, password and
 signature PayPal will provide you with: ::
 
-    PAYPAL_USER = 'api_user@example.com'
+    PAYPAL_USER = 'username_merchant_api1.gmail.com'
     PAYPAL_PWD = 'your api password'
     PAYPAL_SIGNATURE = 'your api signature'
 

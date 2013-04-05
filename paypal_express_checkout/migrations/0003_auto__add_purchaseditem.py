@@ -9,23 +9,20 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'PaymentTransaction.content_type'
-        db.add_column('paypal_express_checkout_paymenttransaction', 'content_type',
-                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'], null=True, blank=True),
-                      keep_default=False)
-
-        # Adding field 'PaymentTransaction.object_id'
-        db.add_column('paypal_express_checkout_paymenttransaction', 'object_id',
-                      self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True),
-                      keep_default=False)
+        # Adding model 'PurchasedItem'
+        db.create_table('paypal_express_checkout_purchaseditem', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('transaction', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['paypal_express_checkout.PaymentTransaction'])),
+            ('item', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['paypal_express_checkout.Item'])),
+            ('quantity', self.gf('django.db.models.fields.PositiveIntegerField')()),
+        ))
+        db.send_create_signal('paypal_express_checkout', ['PurchasedItem'])
 
 
     def backwards(self, orm):
-        # Deleting field 'PaymentTransaction.content_type'
-        db.delete_column('paypal_express_checkout_paymenttransaction', 'content_type_id')
-
-        # Deleting field 'PaymentTransaction.object_id'
-        db.delete_column('paypal_express_checkout_paymenttransaction', 'object_id')
+        # Deleting model 'PurchasedItem'
+        db.delete_table('paypal_express_checkout_purchaseditem')
 
 
     models = {
@@ -88,6 +85,14 @@ class Migration(SchemaMigration):
             'date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'response': ('django.db.models.fields.TextField', [], {}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
+        },
+        'paypal_express_checkout.purchaseditem': {
+            'Meta': {'object_name': 'PurchasedItem'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'item': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['paypal_express_checkout.Item']"}),
+            'quantity': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'transaction': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['paypal_express_checkout.PaymentTransaction']"}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         }
     }

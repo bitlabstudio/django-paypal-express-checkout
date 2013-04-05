@@ -8,11 +8,9 @@ from django.test import TestCase
 
 from django_libs.tests.factories import UserFactory
 
-from paypal_express_checkout.forms import (
-    PayPalFormMixin,
-    SetExpressCheckoutItemForm,
-)
-from paypal_express_checkout.tests.factories import ItemFactory
+from ..forms import PayPalFormMixin, SetExpressCheckoutItemForm
+from ..models import PurchasedItem
+from .factories import ItemFactory
 
 
 class PayPalFormMixinTestCase(TestCase):
@@ -99,6 +97,9 @@ class SetExpressCheckoutItemFormTestCase(TestCase):
         self.assertEqual(
             resp.items()[1][1], settings.PAYPAL_LOGIN_URL + 'abc123', msg=(
                 'Should redirect to PayPal Login.'))
+        self.assertEqual(PurchasedItem.objects.all().count(), 1, msg=(
+            'Should create a PurchasedItem object when saving the'
+            ' transaction'))
 
         self.paypal_response.update({
             'ACK': ['Failure']})
