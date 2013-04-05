@@ -1,5 +1,7 @@
 === ongoing ===
 
+=== 0.3 ===
+
 - Added PurchasedItem model. We are now keeping track of what items the users
   buy and their quantities.
 
