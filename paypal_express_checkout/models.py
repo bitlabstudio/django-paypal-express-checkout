@@ -126,6 +126,7 @@ class PurchasedItem(models.Model):
     item = models.ForeignKey(
         Item,
         verbose_name=_('Item'),
+        null=True, blank=True,
     )
 
     quantity = models.PositiveIntegerField(

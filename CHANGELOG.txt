@@ -1,5 +1,8 @@
 === ongoing ===
 
+- Made item field on PurchasedItem model optional
+- Added CUURENCYCODE setting
+
 === 0.3 ===
 
 - Added PurchasedItem model. We are now keeping track of what items the users

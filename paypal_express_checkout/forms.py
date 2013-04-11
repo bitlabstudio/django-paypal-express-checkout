@@ -166,17 +166,23 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
         """Creates the post data dictionary to send to PayPal."""
         post_data = PAYPAL_DEFAULTS
         total_value = 0
+        item_index = 0
         for item, quantity in item_quantity_list:
             if not quantity:
                 # If a user chose quantity 0, we don't include it
                 continue
             total_value += item.value * quantity
             post_data.update({
-                'L_PAYMENTREQUEST_0_NAME0': item.name,
-                'L_PAYMENTREQUEST_0_DESC0': item.description,
-                'L_PAYMENTREQUEST_0_AMT0': item.value,
-                'L_PAYMENTREQUEST_0_QTY0': quantity,
+                'L_PAYMENTREQUEST_0_NAME{0}'.format(
+                    item_index): item.name,
+                'L_PAYMENTREQUEST_0_DESC{0}'.format(
+                    item_index): item.description,
+                'L_PAYMENTREQUEST_0_AMT{0}'.format(
+                    item_index): item.value,
+                'L_PAYMENTREQUEST_0_QTY{0}'.format(
+                    item_index): quantity,
             })
+            item_index += 1
 
         post_data.update({
             'METHOD': 'SetExpressCheckout',
@@ -219,9 +225,14 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
             for item, quantity in item_quantity_list:
                 if not quantity:
                     continue
-                PurchasedItem.objects.create(
-                    user=self.user, transaction=transaction, item=item,
-                    quantity=quantity)
+                item_kwargs = {
+                    'user': self.user,
+                    'transaction': transaction,
+                    'quantity': quantity,
+                }
+                if item.pk:
+                    item_kwargs.update({'item': item, })
+                PurchasedItem.objects.create(**item_kwargs)
             return redirect(LOGIN_URL + token)
         elif parsed_response.get('ACK')[0] == 'Failure':
             self.log_error(parsed_response)

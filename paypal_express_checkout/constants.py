@@ -4,6 +4,8 @@ from django.conf import settings
 
 # Common values for a payment status.
 
+CURRENCYCODE = getattr(settings, 'PAYPAL_CURRENCYCODE', 'USD')
+
 PAYMENT_STATUS = {
     # app status values
     'checkout': 'Checkout',
@@ -50,6 +52,7 @@ PAYPAL_DEFAULTS = {
     'SIGNATURE': settings.PAYPAL_SIGNATURE,
     'VERSION': '91.0',
     'PAYMENTREQUEST_0_PAYMENTACTION': 'Sale',
+    'PAYMENTREQUEST_0_CURRENCYCODE': CURRENCYCODE,
 }
 
 if settings.SALE_DESCRIPTION:
