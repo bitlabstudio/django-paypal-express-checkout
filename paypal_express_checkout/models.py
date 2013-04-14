@@ -13,11 +13,18 @@ class Item(models.Model):
 
     The information will be needed to process the PayPal payment transaction.
 
+    :identifier: A unique identifier for the item.
     :name: Name of the item.
     :description: Description of the item.
     :value: The price of the item.
 
     """
+    identifier = models.CharField(
+        max_length=256,
+        verbose_name=_('Identifier'),
+        blank=True,
+    )
+
     name = models.CharField(
         max_length=2048,
         verbose_name=_('Name'),

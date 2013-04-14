@@ -2,6 +2,8 @@
 
 - Made item field on PurchasedItem model optional
 - Added CUURENCYCODE setting
+- Added identifier field to Item model - this helps to select items in the
+  forms.
 
 === 0.3 ===
 
