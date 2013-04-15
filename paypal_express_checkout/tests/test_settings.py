@@ -74,7 +74,10 @@ HOSTNAME = 'http://localhost:8000'  # without trailing slash
 
 PAYPAL_API_URL = 'https://api.sandbox.paypal.com/nvp'
 
-PAYPAL_LOGIN_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token='  # NOQA
+PAYPAL_LOGIN_URL = (
+    'https://www.sandbox.paypal.com/cgi-bin/'
+    'webscr?cmd=_express-checkout&token='
+)
 
 # [OPTIONAL]
 # The general description of all Sales (not the one of a single item!)
