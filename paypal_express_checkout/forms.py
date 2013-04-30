@@ -75,6 +75,7 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
     payerID = forms.CharField()
 
     def __init__(self, user, *args, **kwargs):
+        self.user = user
         super(DoExpressCheckoutForm, self).__init__(*args, **kwargs)
         try:
             self.transaction = PaymentTransaction.objects.get(

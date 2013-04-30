@@ -1,5 +1,6 @@
 === ongoing ===
 
+- Some fixes for the DoExpressCheckoutForm
 - Made item field on PurchasedItem model optional
 - Added CUURENCYCODE setting
 - Added identifier field to Item model - this helps to select items in the
@@ -12,9 +13,9 @@
 
 === 0.2 ===
 
-- The SetExpressCheckoutItemForm needs to implement a method called 
+- The SetExpressCheckoutItemForm needs to implement a method called
   get_items_and_quantities now. get_item and get_quantity are obsolete now.
-- This allows us to hand over more than just one item to paypal 
+- This allows us to hand over more than just one item to paypal
 
 === 0.1 ===
 
