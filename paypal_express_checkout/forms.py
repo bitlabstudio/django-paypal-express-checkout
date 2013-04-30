@@ -107,7 +107,7 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
             self.transaction.save()
             return redirect(reverse('paypal_success'))
         elif parsed_response.get('ACK')[0] == 'Failure':
-            self.transaction.status = PAYMENT_STATUS['error']
+            self.transaction.status = PAYMENT_STATUS['canceled']
             self.transaction.save()
             self.log_error(parsed_response, self.transaction)
             return redirect(reverse('paypal_error'))
