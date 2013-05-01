@@ -48,6 +48,28 @@ class PayPalFormMixin(object):
             parsed_response = urlparse.parse_qs(response.read())
             return parsed_response
 
+    def get_cancel_url(self):
+        """Returns the paypal cancel url."""
+        return settings.HOSTNAME + reverse(
+            'paypal_canceled', kwargs=self.get_url_kwargs())
+
+    def get_error_url(self):
+        """Returns the url of the payment error page."""
+        return reverse('paypal_error')
+
+    def get_notify_url(self):
+        """Returns the notification (ipn) url."""
+        return settings.HOSTNAME + reverse('ipn_listener')
+
+    def get_return_url(self):
+        """Returns the paypal return url."""
+        return settings.HOSTNAME + reverse(
+            'paypal_confirm', kwargs=self.get_url_kwargs())
+
+    def get_success_url(self):
+        """Returns the url of the payment success page."""
+        return reverse('paypal_success')
+
     def log_error(self, error_message, transaction=None):
         """
         Saves error information as a ``PaymentTransactionError`` object.
@@ -91,8 +113,7 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
             'TOKEN': self.transaction.transaction_id,
             'PAYERID': self.data['payerID'],
             'PAYMENTREQUEST_0_AMT': self.transaction.value,
-            'PAYMENTREQUEST_0_NOTIFYURL': settings.HOSTNAME + reverse(
-                'ipn_listener'),
+            'PAYMENTREQUEST_0_NOTIFYURL': self.get_notify_url(),
         })
         return post_data
 
@@ -106,12 +127,12 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
             self.transaction.transaction_id = transaction_id
             self.transaction.status = PAYMENT_STATUS['pending']
             self.transaction.save()
-            return redirect(reverse('paypal_success'))
+            return redirect(self.get_success_url())
         elif parsed_response.get('ACK')[0] == 'Failure':
             self.transaction.status = PAYMENT_STATUS['canceled']
             self.transaction.save()
             self.log_error(parsed_response, self.transaction)
-            return redirect(reverse('paypal_error'))
+            return redirect(self.get_error_url())
 
 
 class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
@@ -189,10 +210,8 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
             'METHOD': 'SetExpressCheckout',
             'PAYMENTREQUEST_0_AMT': total_value,
             'PAYMENTREQUEST_0_ITEMAMT': total_value,
-            'RETURNURL': settings.HOSTNAME + reverse(
-                'paypal_confirm', kwargs=self.get_url_kwargs()),
-            'CANCELURL': settings.HOSTNAME + reverse(
-                'paypal_canceled', kwargs=self.get_url_kwargs()),
+            'RETURNURL': self.get_return_url(),
+            'CANCELURL': self.get_cancel_url(),
         })
         return post_data
 
@@ -237,7 +256,7 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
             return redirect(LOGIN_URL + token)
         elif parsed_response.get('ACK')[0] == 'Failure':
             self.log_error(parsed_response)
-            return redirect(reverse('paypal_error'))
+            return redirect(self.get_error_url())
 
 
 class SetExpressCheckoutItemForm(SetExpressCheckoutFormMixin):
