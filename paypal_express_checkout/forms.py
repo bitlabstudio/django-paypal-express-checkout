@@ -219,6 +219,20 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
         """Provide additional url kwargs, by overriding this method."""
         return {}
 
+    def post_transaction_save(self, transaction, item_quantity_list):
+        """
+        Override this method if you need to create further objects.
+
+        Once we got a successful response from PayPal we can create a
+        Transaction with status "checkout". You might want to create or
+        manipulate further objects in your app at this point.
+
+        For example you might ask for user's the t-shirt size on your checkout
+        form. This a good place to save the user's choice on the UserProfile.
+
+        """
+        return
+
     def set_checkout(self):
         """
         Calls PayPal to make the 'SetExpressCheckout' procedure.
@@ -242,6 +256,7 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
                 content_object=self.get_content_object(),
             )
             transaction.save()
+            self.post_transaction_save(transaction, item_quantity_list)
             for item, quantity in item_quantity_list:
                 if not quantity:
                     continue
