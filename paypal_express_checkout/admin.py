@@ -15,19 +15,23 @@ class ItemAdmin(admin.ModelAdmin):
 
 class PaymentTransactionAdmin(admin.ModelAdmin):
     """Custom admin for the ``PaymentTransaction`` model."""
-    list_display = ['date', 'user', 'transaction_id', 'value', 'status']
+    list_display = [
+        'date', 'user', 'user_email', 'transaction_id', 'value', 'status']
     search_fields = [
         'transaction_id', 'status', 'user__email', 'user__usermame']
     list_filter = ['status']
+
+    def user_email(self, obj):
+        return obj.user.email
 
 
 class PaymentTransactionErrorAdmin(admin.ModelAdmin):
     """Custom admin for the ``PaymentTransactionError`` model."""
     list_display = [
-        'date', 'user', 'user__email', 'response_short', 'transaction_id'
+        'date', 'user', 'user_email', 'response_short', 'transaction_id'
     ]
 
-    def user__email(self, obj):
+    def user_email(self, obj):
         return obj.user.email
 
     def response_short(self, obj):
@@ -36,12 +40,15 @@ class PaymentTransactionErrorAdmin(admin.ModelAdmin):
     def transaction_id(self, obj):
         return obj.transaction_id
 
+    def user_email(self, obj):
+        return obj.user.email
+
 
 class PurchasedItemAdmin(admin.ModelAdmin):
     """Custom admin for the ``PurchasedItem`` model."""
     list_display = [
-        'date', 'user', 'transaction', 'item', 'quantity', 'subtotal', 'total',
-        'status', ]
+        'date', 'user', 'user_email', 'transaction', 'item', 'quantity',
+        'subtotal', 'total', 'status', ]
     list_filter = [
         'transaction__status', 'item', ]
     search_fields = [
@@ -50,14 +57,17 @@ class PurchasedItemAdmin(admin.ModelAdmin):
     def date(self, obj):
         return obj.transaction.date
 
+    def status(self, obj):
+        return obj.transaction.status
+
     def subtotal(self, obj):
         return obj.item.value * obj.quantity
 
     def total(self, obj):
         return obj.transaction.value
 
-    def status(self, obj):
-        return obj.transaction.status
+    def user_email(self, obj):
+        return obj.user.email
 
 
 admin.site.register(models.Item, ItemAdmin)

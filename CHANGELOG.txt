@@ -1,5 +1,7 @@
 === ongoing ===
 
+- Added user_email to all the other admin sites.
+
 === 0.5 ===
 
 - Fixed critical bug in SetExpressCheckoutForm
