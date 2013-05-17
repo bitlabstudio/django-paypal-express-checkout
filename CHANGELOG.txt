@@ -1,5 +1,7 @@
 === ongoing ===
 
+ - Fixed critical bug in SetExpressCheckoutForm
+
 === 0.4.1 ===
 
 - Added user__email to PaymentTransactionError admin
