@@ -1,5 +1,7 @@
 === ongoing ===
 
+=== 0.4.1 ===
+
 - Added user__email to PaymentTransactionError admin
 
 === 0.4 ===
