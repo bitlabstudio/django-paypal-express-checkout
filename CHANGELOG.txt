@@ -1,6 +1,8 @@
 === ongoing ===
 
- - Fixed critical bug in SetExpressCheckoutForm
+=== 0.5 ===
+
+- Fixed critical bug in SetExpressCheckoutForm
 
 === 0.4.1 ===
 
