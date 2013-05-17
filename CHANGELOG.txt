@@ -6,6 +6,7 @@
 - Added identifier field to Item model - this helps to select items in the
   forms.
 - Aded post_transaction_save method to checkout form.
+- Logging API URL and request data payload when loggin transaction errors
 
 === 0.3 ===
 

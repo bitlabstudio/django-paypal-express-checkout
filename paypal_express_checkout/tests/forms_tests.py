@@ -10,6 +10,7 @@ from django_libs.tests.factories import UserFactory
 
 from ..forms import PayPalFormMixin, SetExpressCheckoutItemForm
 from ..models import PurchasedItem
+from ..settings import API_URL
 from .factories import ItemFactory
 
 
@@ -28,13 +29,13 @@ class PayPalFormMixinTestCase(TestCase):
         response_mock = Mock()
         response_mock.read = Mock(return_value=self.paypal_response)
         urllib2_mock.urlopen.return_value = response_mock
-        response = mixin.call_paypal({})
+        response = mixin.call_paypal(API_URL, {})
         self.assertEqual(response['ACK'], ['Success'], msg=(
             'Should parse the response from paypal and return it as a dict'))
 
         with patch.object(mixin, 'log_error') as log_error_mock:
             urllib2_mock.urlopen = PropertyMock(side_effect=HTTPException)
-            mixin.call_paypal({})
+            mixin.call_paypal(API_URL, {})
             self.assertEqual(log_error_mock.call_count, 1, msg=(
                 'Should log an error if calling the PayPal API fails.'))
 

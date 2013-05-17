@@ -154,7 +154,13 @@ class PaymentTransactionError(models.Model):
 
     :data: When the error ocurred.
     :user: For which user the error occurred.
+    :paypal_api_url: The API endpoint we have been calling, which has responded
+      with the error.
+    :request_data: The data payload we have been sending to the API endpoint.
     :response: The full response string from PayPal.
+    :transaction: If we send a request at a point in time where we already have
+      a transaction, we can add a FK to that transaction for easier cross
+      referencing.
 
     """
     date = models.DateTimeField(
@@ -167,8 +173,20 @@ class PaymentTransactionError(models.Model):
         verbose_name=_('User'),
     )
 
+    paypal_api_url = models.CharField(
+        max_length=4000,
+        verbose_name=_('Paypal API URL'),
+        blank=True,
+    )
+
+    request_data = models.TextField(
+        verbose_name=_('Request data'),
+        blank=True,
+    )
+
     response = models.TextField(
         verbose_name=_('Response String'),
+        blank=True,
     )
 
     transaction = models.ForeignKey(

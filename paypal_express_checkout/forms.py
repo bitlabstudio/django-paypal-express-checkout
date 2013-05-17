@@ -28,22 +28,27 @@ logger = logging.getLogger(__name__)
 
 class PayPalFormMixin(object):
     """Common methods for the PayPal forms."""
-    def call_paypal(self, post_data):
+    def call_paypal(self, api_url, post_data, transaction=None):
         """
         Gets the PayPal API URL from the settings and posts ``post_data``.
 
+        :param api_url: The API endpoint that should be called.
         :param post_data: The full post data for PayPal containing all needed
           information for the current transaction step.
+        :param transaction: If you already have a transaction, pass it into
+          this method so that it can be logged in case of an error.
 
         """
+        data = urllib.urlencode(post_data)
         try:
-            response = urllib2.urlopen(
-                API_URL, data=urllib.urlencode(post_data))
+            response = urllib2.urlopen(api_url, data=data)
         except (
                 urllib2.HTTPError,
                 urllib2.URLError,
                 httplib.HTTPException), ex:
-            self.log_error(ex)
+            self.log_error(
+                ex, api_url=api_url, request_data=data,
+                transaction=transaction)
         else:
             parsed_response = urlparse.parse_qs(response.read())
             return parsed_response
@@ -70,7 +75,8 @@ class PayPalFormMixin(object):
         """Returns the url of the payment success page."""
         return reverse('paypal_success')
 
-    def log_error(self, error_message, transaction=None):
+    def log_error(self, error_message, api_url=None, request_data=None,
+                  transaction=None):
         """
         Saves error information as a ``PaymentTransactionError`` object.
 
@@ -81,6 +87,8 @@ class PayPalFormMixin(object):
         payment_error = PaymentTransactionError()
         payment_error.user = self.user
         payment_error.response = error_message
+        payment_error.paypal_api_url = api_url
+        payment_error.request_data = request_data
         payment_error.transaction = transaction
         payment_error.save()
         return payment_error
@@ -120,7 +128,8 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
     def do_checkout(self):
         """Calls PayPal to make the 'DoExpressCheckoutPayment' procedure."""
         post_data = self.get_post_data()
-        parsed_response = self.call_paypal(post_data)
+        api_url = API_URL
+        parsed_response = self.call_paypal(api_url, post_data)
         if parsed_response.get('ACK')[0] == 'Success':
             transaction_id = parsed_response.get(
                 'PAYMENTINFO_0_TRANSACTIONID')[0]
@@ -131,7 +140,12 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
         elif parsed_response.get('ACK')[0] == 'Failure':
             self.transaction.status = PAYMENT_STATUS['canceled']
             self.transaction.save()
-            self.log_error(parsed_response, self.transaction)
+            # we have to do urlencode here to make the post data more readable
+            # in the error log
+            post_data_encoded = urllib.urlencode(post_data)
+            self.log_error(
+                parsed_response, api_url, request_data=post_data_encoded,
+                transaction=self.transaction)
             return redirect(self.get_error_url())
 
 
@@ -242,9 +256,10 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
         """
         item_quantity_list = self.get_items_and_quantities()
         post_data = self.get_post_data(item_quantity_list)
+        api_url = API_URL
 
         # making the post to paypal and handling the results
-        parsed_response = self.call_paypal(post_data)
+        parsed_response = self.call_paypal(api_url, post_data)
         if parsed_response.get('ACK')[0] == 'Success':
             token = parsed_response.get('TOKEN')[0]
             transaction = PaymentTransaction(
@@ -270,7 +285,10 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
                 PurchasedItem.objects.create(**item_kwargs)
             return redirect(LOGIN_URL + token)
         elif parsed_response.get('ACK')[0] == 'Failure':
-            self.log_error(parsed_response)
+            post_data_encoded = urllib.urlencode(post_data)
+            self.log_error(
+                parsed_response, api_url=api_url,
+                request_data=post_data_encoded)
             return redirect(self.get_error_url())
 
 
