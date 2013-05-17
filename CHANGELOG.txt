@@ -1,5 +1,7 @@
 === ongoing ===
 
+- Added user__email to PaymentTransactionError admin
+
 === 0.4 ===
 
 - Some fixes for the DoExpressCheckoutForm
