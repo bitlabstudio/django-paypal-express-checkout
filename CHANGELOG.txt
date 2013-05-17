@@ -1,5 +1,7 @@
 === ongoing ===
 
+=== 0.5.1 ===
+
 - Added user_email to all the other admin sites.
 
 === 0.5 ===
