@@ -4,14 +4,22 @@ from httplib import HTTPException
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.http import Http404
 from django.test import TestCase
 
 from django_libs.tests.factories import UserFactory
 
-from ..forms import PayPalFormMixin, SetExpressCheckoutItemForm
+from ..forms import (
+    DoExpressCheckoutForm,
+    PayPalFormMixin,
+    SetExpressCheckoutFormMixin,
+    SetExpressCheckoutItemForm,
+)
 from ..models import PurchasedItem
+from ..constants import PAYPAL_DEFAULTS
 from ..settings import API_URL
-from .factories import ItemFactory
+from .factories import ItemFactory, PaymentTransactionFactory
+from ..settings import LOGIN_URL
 
 
 class PayPalFormMixinTestCase(TestCase):
@@ -38,6 +46,91 @@ class PayPalFormMixinTestCase(TestCase):
             mixin.call_paypal(API_URL, {})
             self.assertEqual(log_error_mock.call_count, 1, msg=(
                 'Should log an error if calling the PayPal API fails.'))
+
+
+class DoExpressCheckoutFormTestCase(TestCase):
+    """Tests for the ``DoExpressCheckoutForm`` form class."""
+    longMessage = True
+
+    def setUp(self):
+        self.token = 'abc123'
+        self.transaction = PaymentTransactionFactory(transaction_id=self.token)
+        self.user = self.transaction.user
+        self.valid_response = {'ACK': ['Success'],
+                               'PAYMENTINFO_0_TRANSACTIONID': [self.token]}
+        self.invalid_response = {'ACK': ['Failure']}
+        self.valid_data = {'token': self.token, 'payerID': 'PAYERID123'}
+
+    @patch.object(PayPalFormMixin, 'call_paypal')
+    def test_form(self, call_paypal_mock):
+        call_paypal_mock.return_value = self.valid_response
+        form = DoExpressCheckoutForm(user=self.user, data=self.valid_data)
+        self.assertTrue(form.is_valid, msg='The form should be valid.')
+
+        resp = form.do_checkout()
+        self.assertEqual(resp['Location'], reverse('paypal_success'))
+
+        call_paypal_mock.return_value = self.invalid_response
+        form = DoExpressCheckoutForm(user=self.user, data=self.valid_data)
+        self.assertTrue(form.is_valid, msg='The form should be valid.')
+
+        resp = form.do_checkout()
+        self.assertEqual(resp['Location'], reverse('paypal_error'))
+
+        self.transaction.delete()
+        self.assertRaises(Http404, DoExpressCheckoutForm,
+                          **{'user': self.user, 'data': self.valid_data})
+
+
+class SetExpressCheckoutFormMixinTestCase(TestCase):
+    """Tests for the ``SetExpressCheckoutFormMixin`` mixin."""
+    longMessage = True
+    maxDiff = None
+
+    def setUp(self):
+        self.user = UserFactory()
+        self.item1 = ItemFactory(name='item1')
+        self.item2 = ItemFactory(name='item2')
+        self.item_list = [(self.item1, 1), (self.item2, 0)]
+        self.expected_post_data = {
+            'L_PAYMENTREQUEST_0_NAME0': self.item1.name,
+            'L_PAYMENTREQUEST_0_DESC0': self.item1.description,
+            'L_PAYMENTREQUEST_0_AMT0': self.item1.value,
+            'L_PAYMENTREQUEST_0_QTY0': 1,
+            'METHOD': 'SetExpressCheckout',
+            'PAYMENTREQUEST_0_AMT': self.item1.value,
+            'PAYMENTREQUEST_0_ITEMAMT': self.item1.value,
+            'RETURNURL': settings.HOSTNAME + reverse('paypal_confirm'),
+            'CANCELURL': settings.HOSTNAME + reverse('paypal_canceled'),
+        }
+        self.expected_post_data.update(PAYPAL_DEFAULTS.copy())
+        self.token = 'abc123'
+        self.valid_response = {'ACK': ['Success'], 'TOKEN': [self.token]}
+        self.invalid_response = {'ACK': ['Failure']}
+
+    @patch.object(PayPalFormMixin, 'call_paypal')
+    def test_mixin(self, call_paypal_mock):
+        form = SetExpressCheckoutFormMixin(self.user)
+        self.assertRaises(NotImplementedError, form.get_item)
+        self.assertRaises(NotImplementedError, form.get_quantity)
+        self.assertRaises(NotImplementedError, form.get_items_and_quantities)
+        self.assertEqual(form.get_post_data(self.item_list),
+                         self.expected_post_data)
+
+        old_item_and_qty = SetExpressCheckoutFormMixin.get_items_and_quantities
+        SetExpressCheckoutFormMixin.get_items_and_quantities = Mock(
+            return_value=self.item_list)
+        form = SetExpressCheckoutFormMixin(self.user)
+
+        call_paypal_mock.return_value = self.valid_response
+        resp = form.set_checkout()
+        self.assertEqual(resp['Location'], LOGIN_URL + self.token)
+
+        call_paypal_mock.return_value = self.invalid_response
+        resp = form.set_checkout()
+        self.assertEqual(resp['Location'], reverse('paypal_error'))
+
+        SetExpressCheckoutFormMixin.get_items_and_quantities = old_item_and_qty
 
 
 class SetExpressCheckoutItemFormTestCase(TestCase):

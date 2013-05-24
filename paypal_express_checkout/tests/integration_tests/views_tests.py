@@ -1,5 +1,5 @@
 """Tests for the views of the ``paypal_express_checkout`` app."""
-from mock import Mock
+from mock import Mock, patch
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -61,7 +61,10 @@ class DoExpressCheckoutViewTestCase(PaymentViewTestCaseMixin, TestCase):
 
     def test_view(self):
         self.should_redirect_to_login_when_anonymous()
-        self.is_callable('post', data=self.get_post_data(), user=self.user)
+        self.is_callable(user=self.user, data=self.get_post_data())
+        self.is_callable('post', data=self.get_post_data())
+
+        self.is_not_callable()
 
 
 class PaymentCancelViewTestCase(PaymentViewTestCaseMixin, TestCase):
@@ -152,15 +155,11 @@ class SetExpressCheckoutViewTestCase(PaymentViewTestCaseMixin, TestCase):
             'quantity': 1,
         }
 
-        self.old_call_paypal = PayPalFormMixin.call_paypal
-        PayPalFormMixin.call_paypal = Mock(return_value=self.paypal_response)
-
-    def tearDown(self):
-        PayPalFormMixin.call_paypal = self.old_call_paypal
-
-    def test_view(self):
+    @patch.object(PayPalFormMixin, 'call_paypal')
+    def test_view(self, call_paypal_mock):
+        call_paypal_mock.return_value = self.paypal_response
         self.should_redirect_to_login_when_anonymous()
-        self.is_callable('post', data=self.get_post_data(), user=self.user)
+        self.is_callable('post', data=self.data, user=self.user)
 
 
 class IPNListenerViewTestCase(ViewTestMixin, TestCase):
@@ -189,3 +188,5 @@ class IPNListenerViewTestCase(ViewTestMixin, TestCase):
 
         self.assertEqual(self.received_transaction, self.transaction, msg=(
             'When the IPNListenerView is called, it should send a signal.'))
+
+        self.is_not_callable()

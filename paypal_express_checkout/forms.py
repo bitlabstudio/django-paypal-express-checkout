@@ -179,11 +179,11 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
 
     def get_item(self):
         """Obsolete. Just implement ``get_items_and_quantities``."""
-        raise NotImplemented
+        raise NotImplementedError
 
     def get_quantity(self):
         """Obsolete. Just implement ``get_items_and_quantities``."""
-        raise NotImplemented
+        raise NotImplementedError
 
     def get_items_and_quantities(self):
         """
