@@ -18,7 +18,7 @@ class PaymentTransactionAdmin(admin.ModelAdmin):
     list_display = [
         'date', 'user', 'user_email', 'transaction_id', 'value', 'status']
     search_fields = [
-        'transaction_id', 'status', 'user__email', 'user__usermame']
+        'transaction_id', 'status', 'user__email', 'user__username']
     list_filter = ['status']
 
     def user_email(self, obj):
