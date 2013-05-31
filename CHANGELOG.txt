@@ -1,5 +1,7 @@
 === ongoing ===
 
+=== 0.5.2 ===
+
 - Fixed wrong fieldname in model admin's search_fields
 
 === 0.5.1 ===
