@@ -1,5 +1,7 @@
 === ongoing ===
 
+=== 0.6 ===
+
 - BACKWARDS INCOMPATIBLE CHANGES!
 - field renamed from payerID to PayerID, which is what PayPal returns. You
   might need to update your templates
