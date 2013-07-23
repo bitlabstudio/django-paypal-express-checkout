@@ -59,7 +59,7 @@ class DoExpressCheckoutFormTestCase(TestCase):
         self.valid_response = {'ACK': ['Success'],
                                'PAYMENTINFO_0_TRANSACTIONID': [self.token]}
         self.invalid_response = {'ACK': ['Failure']}
-        self.valid_data = {'token': self.token, 'payerID': 'PAYERID123'}
+        self.valid_data = {'token': self.token, 'PayerID': 'PAYERID123'}
 
     @patch.object(PayPalFormMixin, 'call_paypal')
     def test_form(self, call_paypal_mock):

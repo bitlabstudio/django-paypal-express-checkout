@@ -3,7 +3,7 @@ from mock import Mock, patch
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 
 from django_libs.tests.factories import UserFactory
 from django_libs.tests.mixins import ViewTestMixin
@@ -14,6 +14,7 @@ from ..factories import (
 )
 from ...forms import PayPalFormMixin
 from ...signals import payment_completed
+from ...views import DoExpressCheckoutView
 
 
 class PaymentViewTestCaseMixin(ViewTestMixin):
@@ -59,12 +60,38 @@ class DoExpressCheckoutViewTestCase(PaymentViewTestCaseMixin, TestCase):
     def tearDown(self):
         PayPalFormMixin.call_paypal = self.old_call_paypal
 
+    def get_req_and_view(self):
+        self.login(self.user)
+        req = RequestFactory().get('/', data=self.get_post_data())
+        req.user = self.user
+        view = DoExpressCheckoutView()
+        return req, view
+
     def test_view(self):
         self.should_redirect_to_login_when_anonymous()
         self.is_callable(user=self.user, data=self.get_post_data())
         self.is_callable('post', data=self.get_post_data())
-
         self.is_not_callable()
+
+    def test_skip_confirmation(self):
+        req, view = self.get_req_and_view()
+        view.skip_confirmation = True
+        view.post = Mock()
+        view.dispatch(req)
+        self.assertEqual(view.post.call_count, 1, msg=(
+            'When called with skip_confirmation=True, the view will not'
+            ' render the template but execute the post handler instead'
+            ' of the get handler'))
+
+    def test_form_valid(self):
+        req, view = self.get_req_and_view()
+        form_mock = Mock()
+        view.form = form_mock
+        view.dispatch(req)
+        view.form_valid(view.form)
+        self.assertEqual(form_mock.do_checkout.call_count, 1, msg=(
+            'When the form is valid, the view should execute and return the'
+            ' do_checkout method of the form'))
 
 
 class PaymentCancelViewTestCase(PaymentViewTestCaseMixin, TestCase):

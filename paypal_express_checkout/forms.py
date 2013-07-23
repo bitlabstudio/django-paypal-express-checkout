@@ -102,7 +102,7 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
     """
     token = forms.CharField()
 
-    payerID = forms.CharField()
+    PayerID = forms.CharField()
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
@@ -119,7 +119,7 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
         post_data.update({
             'METHOD': 'DoExpressCheckoutPayment',
             'TOKEN': self.transaction.transaction_id,
-            'PAYERID': self.data['payerID'],
+            'PAYERID': self.data['PayerID'],
             'PAYMENTREQUEST_0_AMT': self.transaction.value,
             'PAYMENTREQUEST_0_NOTIFYURL': self.get_notify_url(),
         })
@@ -156,8 +156,14 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
 
     Also this is to be used to construct custom forms.
 
+    :param user: The user making the purchase
+    :param redirect: If ``True``, the form will return a HttpResponseRedirect,
+      otherwise it will only return the redirect URL. This can be useful if
+      you want to use this form in an AJAX view.
+
     """
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, user, redirect=True, *args, **kwargs):
+        self.redirect=redirect
         self.user = user
         super(SetExpressCheckoutFormMixin, self).__init__(*args, **kwargs)
 
@@ -283,7 +289,9 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
                 if item.pk:
                     item_kwargs.update({'item': item, })
                 PurchasedItem.objects.create(**item_kwargs)
-            return redirect(LOGIN_URL + token)
+            if self.redirect:
+                return redirect(LOGIN_URL + token)
+            return LOGIN_URL + token
         elif parsed_response.get('ACK')[0] == 'Failure':
             post_data_encoded = urllib.urlencode(post_data)
             self.log_error(

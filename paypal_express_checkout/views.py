@@ -36,9 +36,15 @@ class DoExpressCheckoutView(PaymentViewMixin, FormView):
 
     It leads to the ``DoExpressCheckout`` PayPal API operation.
 
+    :attr skip_confirmation: If you set this to ``True``, the user will not
+      need to click yet another confirm button, instead, the paypal website
+      will load a little bit longer and we will get straight to the success
+      view.
+
     """
     form_class = DoExpressCheckoutForm
     template_name = 'paypal_express_checkout/confirm_checkout.html'
+    skip_confirmation = False
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -52,6 +58,11 @@ class DoExpressCheckoutView(PaymentViewMixin, FormView):
                 user=request.user, transaction_id=self.token)
         except PaymentTransaction.DoesNotExist:
             raise Http404
+
+        if self.skip_confirmation:
+            self.user = request.user
+            self.request = request
+            return self.post(request, *args, **kwargs)
         return super(DoExpressCheckoutView, self).dispatch(
             request, *args, **kwargs)
 
@@ -102,6 +113,7 @@ class SetExpressCheckoutView(PaymentViewMixin, FormView):
     """
     form_class = SetExpressCheckoutForm
     template_name = 'paypal_express_checkout/set_checkout.html'
+    redirect = True
 
     def form_valid(self, form):
         """When the form is valid, the form should handle the PayPal call."""

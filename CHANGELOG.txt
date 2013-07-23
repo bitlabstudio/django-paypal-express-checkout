@@ -1,5 +1,16 @@
 === ongoing ===
 
+- BACKWARDS INCOMPATIBLE CHANGES!
+- field renamed from payerID to PayerID, which is what PayPal returns. You
+  might need to update your templates
+- Added redirect parameter to SetExpressCheckoutFormMixin - this enables you
+  to use this form with AJAX calls as it will only return the redirect URL
+  instead of a HttpResponseRedirect
+- Added skip_confirmation attribtue to DoExpressCheckoutView. If you set this
+  to true, the confirmation view will not be displayed, instead it's POST
+  handler will be executed, just as if the user has clicked the "Confirm"
+  button. This allows you to save one click during the checkout process.
+
 === 0.5.2 ===
 
 - Fixed wrong fieldname in model admin's search_fields
