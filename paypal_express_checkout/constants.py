@@ -15,7 +15,6 @@ PAYMENT_STATUS = {
     # paypal status values
     'completed': 'Completed',
     'canceled_Reversal': 'Canceled_Reversal',
-    'completed': 'Completed',
     'created': 'Created',
     'denied': 'Denied',
     'expired': 'Expired',
