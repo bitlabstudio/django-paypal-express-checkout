@@ -17,6 +17,7 @@ class Item(models.Model):
     :name: Name of the item.
     :description: Description of the item.
     :value: The price of the item.
+    :currency: Short currency identifier. Defaults to USD.
 
     """
     identifier = models.CharField(
@@ -41,8 +42,13 @@ class Item(models.Model):
         verbose_name=_('Value'),
     )
 
+    currency = models.CharField(
+        max_length=16,
+        default='USD',
+    )
+
     def __unicode__(self):
-        return '{0} - {1} $'.format(self.name, self.value)
+        return '{0} - {1} {2}'.format(self.name, self.value, self.currency)
 
 
 class PaymentTransaction(models.Model):

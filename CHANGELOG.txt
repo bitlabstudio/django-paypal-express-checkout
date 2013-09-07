@@ -1,5 +1,8 @@
 === ongoing ===
 
+- added currency field to item. Defaults to USD like the existing currency
+  setting.
+
 === 0.7 ===
 
 - added conditional decorator with login required to all views

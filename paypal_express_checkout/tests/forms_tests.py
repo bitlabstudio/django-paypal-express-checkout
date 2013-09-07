@@ -102,6 +102,7 @@ class SetExpressCheckoutFormMixinTestCase(TestCase):
             'PAYMENTREQUEST_0_ITEMAMT': self.item1.value,
             'RETURNURL': settings.HOSTNAME + reverse('paypal_confirm'),
             'CANCELURL': settings.HOSTNAME + reverse('paypal_canceled'),
+            'PAYMENTREQUEST_0_CURRENCYCODE': 'USD',
         }
         self.expected_post_data.update(PAYPAL_DEFAULTS.copy())
         self.token = 'abc123'

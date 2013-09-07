@@ -122,6 +122,11 @@ The minimum implementation should include: ::
 Have a look at our ``paypal_express_checkout.forms.SetExpressCheckoutForm``
 example implementation for a better understanding.
 
+Further we supply a simpe settings hook to tell the app, what new form to use.
+Just set ``PAYPAL_SET_CHECKOUT_FORM`` to the correct form class like so:::
+
+    PAYPAL_SET_CHECKOUT_FORM = 'myproject.forms.MyForm'
+
 
 **Logging**
 

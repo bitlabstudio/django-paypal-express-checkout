@@ -26,6 +26,9 @@ from .settings import API_URL, LOGIN_URL
 logger = logging.getLogger(__name__)
 
 
+CURRENCYCODE = getattr(settings, 'PAYPAL_CURRENCYCODE', 'USD')
+
+
 class PayPalFormMixin(object):
     """Common methods for the PayPal forms."""
     def call_paypal(self, api_url, post_data, transaction=None):
@@ -116,12 +119,18 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
     def get_post_data(self):
         """Creates the post data dictionary to send to PayPal."""
         post_data = PAYPAL_DEFAULTS.copy()
+        items = self.transaction.purchaseditem_set.all()
+        if len(items) != 0 and items[0].currency is not None:
+            currency = items[0].currency
+        else:
+            currency = CURRENCYCODE
         post_data.update({
             'METHOD': 'DoExpressCheckoutPayment',
             'TOKEN': self.transaction.transaction_id,
             'PAYERID': self.data['PayerID'],
             'PAYMENTREQUEST_0_AMT': self.transaction.value,
             'PAYMENTREQUEST_0_NOTIFYURL': self.get_notify_url(),
+            'PAYMENTREQUEST_0_CURRENCYCODE': currency,
         })
         return post_data
 
@@ -163,7 +172,7 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
 
     """
     def __init__(self, user, redirect=True, *args, **kwargs):
-        self.redirect=redirect
+        self.redirect = redirect
         self.user = user
         super(SetExpressCheckoutFormMixin, self).__init__(*args, **kwargs)
 
@@ -226,12 +235,20 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
             })
             item_index += 1
 
+        if (
+                len(item_quantity_list) != 0 and
+                item_quantity_list[0][0].currency is not None):
+            currency = item_quantity_list[0][0].currency
+        else:
+            currency = CURRENCYCODE
+
         post_data.update({
             'METHOD': 'SetExpressCheckout',
             'PAYMENTREQUEST_0_AMT': total_value,
             'PAYMENTREQUEST_0_ITEMAMT': total_value,
             'RETURNURL': self.get_return_url(),
             'CANCELURL': self.get_cancel_url(),
+            'PAYMENTREQUEST_0_CURRENCYCODE': currency,
         })
         return post_data
 
