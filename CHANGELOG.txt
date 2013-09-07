@@ -1,5 +1,7 @@
 === ongoing ===
 
+=== 0.7 ===
+
 - added conditional decorator with login required to all views
 - added PAYPAL_ALLOW_ANONYMOUS_CHECKOUT setting
 
