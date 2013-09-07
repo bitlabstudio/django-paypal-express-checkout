@@ -40,9 +40,6 @@ class PaymentTransactionErrorAdmin(admin.ModelAdmin):
     def transaction_id(self, obj):
         return obj.transaction_id
 
-    def user_email(self, obj):
-        return obj.user.email
-
 
 class PurchasedItemAdmin(admin.ModelAdmin):
     """Custom admin for the ``PurchasedItem`` model."""
