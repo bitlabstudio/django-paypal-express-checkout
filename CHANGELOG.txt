@@ -1,5 +1,8 @@
 === ongoing ===
 
+
+=== 0.7.1 ===
+
 - added currency field to item. Defaults to USD like the existing currency
   setting.
 
