@@ -1,6 +1,10 @@
 === ongoing ===
 
 
+=== 0.7.2 ===
+
+- Added some checks to prevent exceptions
+
 === 0.7.1 ===
 
 - added currency field to item. Defaults to USD like the existing currency
