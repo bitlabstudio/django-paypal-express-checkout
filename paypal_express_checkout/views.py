@@ -31,7 +31,8 @@ class PaymentViewMixin(object):
         not settings.ALLOW_ANONYMOUS_CHECKOUT)
     def dispatch(self, request, *args, **kwargs):
         """Makes sure that the user is logged in."""
-        self.user = request.user
+        if not settings.ALLOW_ANONYMOUS_CHECKOUT:
+            self.user = request.user
         return super(PaymentViewMixin, self).dispatch(request, *args, **kwargs)
 
 
