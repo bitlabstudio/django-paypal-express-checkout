@@ -84,6 +84,15 @@ Don't forget to run the South migrations::
     ./manage.py migrate paypal_express_checkout
 
 
+Settings
+--------
+
+If you want to allow anonymous checkout set the
+``PAYPAL_ALLOW_ANONYMOUS_CHECKOUT`` to ``True``:::
+
+    PAYPAL_ALLOW_ANONYMOUS_CHECKOUT = True  # Defaults to False
+
+
 Usage
 -----
 

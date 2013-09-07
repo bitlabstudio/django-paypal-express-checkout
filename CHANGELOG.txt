@@ -1,5 +1,8 @@
 === ongoing ===
 
+- added conditional decorator with login required to all views
+- added PAYPAL_ALLOW_ANONYMOUS_CHECKOUT setting
+
 === 0.6 ===
 
 - BACKWARDS INCOMPATIBLE CHANGES!

@@ -5,6 +5,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import FormView, TemplateView, View
 from django.utils.decorators import method_decorator
 
+from django_libs.utils import conditional_decorator
+
+from . import settings
 from .constants import PAYMENT_STATUS
 from .forms import (
     DoExpressCheckoutForm,
@@ -23,7 +26,9 @@ SetExpressCheckoutForm = getattr(module, class_name)
 
 class PaymentViewMixin(object):
     """A Mixin to combine common methods of several payment related views."""
-    @method_decorator(login_required)
+    @conditional_decorator(
+        method_decorator(login_required),
+        not settings.ALLOW_ANONYMOUS_CHECKOUT)
     def dispatch(self, request, *args, **kwargs):
         """Makes sure that the user is logged in."""
         self.user = request.user
@@ -46,7 +51,9 @@ class DoExpressCheckoutView(PaymentViewMixin, FormView):
     template_name = 'paypal_express_checkout/confirm_checkout.html'
     skip_confirmation = False
 
-    @method_decorator(login_required)
+    @conditional_decorator(
+        method_decorator(login_required),
+        not settings.ALLOW_ANONYMOUS_CHECKOUT)
     def dispatch(self, request, *args, **kwargs):
         """Recalls the transaction using the paypal token."""
         # when this view posts to itself it sends the info in the post data
