@@ -1,5 +1,7 @@
 === ongoing ===
 
+- Added raw_id_fields for PurchasedItemAdmin
+
 === 0.7.3 ===
 
 - Added raw_id_field for User to PaymentTransactionAdmin

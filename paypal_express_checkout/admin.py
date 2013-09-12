@@ -51,6 +51,7 @@ class PurchasedItemAdmin(admin.ModelAdmin):
         'transaction__status', 'item', ]
     search_fields = [
         'transaction__transaction_id', 'user__email', ]
+    raw_id_fields = ['user', 'transaction', ]
 
     def date(self, obj):
         return obj.transaction.date
