@@ -20,6 +20,7 @@ class PaymentTransactionAdmin(admin.ModelAdmin):
     search_fields = [
         'transaction_id', 'status', 'user__email', 'user__username']
     list_filter = ['status']
+    raw_id_fields = ['user', ]
 
     def user_email(self, obj):
         return obj.user.email
