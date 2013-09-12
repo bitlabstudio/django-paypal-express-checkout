@@ -1,5 +1,7 @@
 === ongoing ===
 
+=== 0.7.4 ===
+
 - Added raw_id_fields for PurchasedItemAdmin
 
 === 0.7.3 ===
