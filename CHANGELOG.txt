@@ -1,5 +1,7 @@
 === ongoing ===
 
+=== 1.1 ===
+
 - Improved subtotal column of PurchasedItem admin
 
 === 1.0 ===
