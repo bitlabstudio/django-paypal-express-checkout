@@ -29,7 +29,8 @@ class PaymentTransactionAdmin(admin.ModelAdmin):
 class PaymentTransactionErrorAdmin(admin.ModelAdmin):
     """Custom admin for the ``PaymentTransactionError`` model."""
     list_display = [
-        'date', 'user', 'user_email', 'response_short', #  FIXME 'transaction_id'
+        # FIXME 'transaction_id'
+        'date', 'user', 'user_email', 'response_short',
     ]
 
     def user_email(self, obj):

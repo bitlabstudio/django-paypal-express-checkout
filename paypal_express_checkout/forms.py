@@ -7,6 +7,7 @@ import urlparse
 
 from django import forms
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import redirect
@@ -203,23 +204,26 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
 
     def get_items_and_quantities(self):
         """
-        Returns the items and quantities.
+        Returns the items and quantities and content objects.
 
-        Should return a list of tuples: ``[(item, quantity), ]``
+        Content objects are optional, return None if you don't need it.
+
+        Should return a list of tuples:
+        ``[(item, quantity, content_object), ]``
 
         """
         logger.warning(
             'Deprecation warning: Please implement get_items_and_quantities on'
             ' your SetExpressCheckoutForm. Do not use get_item and'
             ' get_quantity any more.')
-        return [(self.get_item(), self.get_quantity()), ]
+        return [(self.get_item(), self.get_quantity(), None), ]
 
     def get_post_data(self, item_quantity_list):
         """Creates the post data dictionary to send to PayPal."""
         post_data = PAYPAL_DEFAULTS.copy()
         total_value = 0
         item_index = 0
-        for item, quantity in item_quantity_list:
+        for item, quantity, content_type in item_quantity_list:
             if not quantity:
                 # If a user chose quantity 0, we don't include it
                 continue
@@ -296,17 +300,28 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
             )
             transaction.save()
             self.post_transaction_save(transaction, item_quantity_list)
-            for item, quantity in item_quantity_list:
+            for item, quantity, content_object in item_quantity_list:
                 if not quantity:
                     continue
-                item_kwargs = {
+                purchased_item_kwargs = {
                     'user': self.user,
                     'transaction': transaction,
                     'quantity': quantity,
+                    'price': item.value,
+                    'identifier': item.identifier,
                 }
+
+                if content_object:
+                    purchased_item_kwargs.update({
+                        'object_id': content_object.pk,
+                        'content_type': ContentType.objects.get_for_model(
+                            content_object),
+                    })
+
                 if item.pk:
-                    item_kwargs.update({'item': item, })
-                PurchasedItem.objects.create(**item_kwargs)
+                    purchased_item_kwargs.update({'item': item, })
+
+                PurchasedItem.objects.create(**purchased_item_kwargs)
             if self.redirect:
                 return redirect(LOGIN_URL + token)
             return LOGIN_URL + token
@@ -350,5 +365,5 @@ class SetExpressCheckoutItemForm(SetExpressCheckoutFormMixin):
 
         """
         return [
-            (self.get_item(), self.get_quantity()),
+            (self.get_item(), self.get_quantity(), None),
         ]

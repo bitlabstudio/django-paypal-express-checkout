@@ -1,5 +1,18 @@
 === ongoing ===
 
+- BACKWARDS INCOMPATIBLE CHANGE: get_items_and_qantities must return 3-tuple
+  Before this change we were only saving the quantity of a purchased item and
+  it's transaction. This is not sufficient for transactions that have more than
+  one item. From now on we will save quantity and price at the time of purchase
+  and optinally a GFK to anything so that we can remember what this item was
+  about. We also have the new field 'identifier' which allows us to calculate
+  sums for certain types of items for a transaction (i.e. only shipping costs).
+- For your current shop you must make sure that your implementation of
+  get_items_and_quantities now reuturns a list of 3-tuples:
+  [(item, quantity, content_object), ...]
+- You can probably easily achieve that by just returning ``None`` for the
+  content object and everything shoudl still work as before.
+
 === 0.7.4 ===
 
 - Added raw_id_fields for PurchasedItemAdmin

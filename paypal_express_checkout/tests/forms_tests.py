@@ -91,7 +91,7 @@ class SetExpressCheckoutFormMixinTestCase(TestCase):
         self.user = UserFactory()
         self.item1 = ItemFactory(name='item1')
         self.item2 = ItemFactory(name='item2')
-        self.item_list = [(self.item1, 1), (self.item2, 0)]
+        self.item_list = [(self.item1, 1, None), (self.item2, 0, None)]
         self.expected_post_data = {
             'L_PAYMENTREQUEST_0_NAME0': self.item1.name,
             'L_PAYMENTREQUEST_0_DESC0': self.item1.description,

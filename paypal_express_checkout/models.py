@@ -121,14 +121,26 @@ class PurchasedItem(models.Model):
     This helps you to find out if and what your users have purchased.
 
     :user: FK to the user who made the purchase.
+    :identifier: An identifier to select items of the same type. This can be
+      helpful if you want to calculate the total shipping costs and the total
+      cost of goods for a certain transaction.
     :transaction: The transaction that belongs to this purchase
+    :content_object: Use this if you would like to point at any kind of item
+      and not the Item model of this app.
     :item: The item that belongs to this purchase
+    :price: The price of the item at the time of the purchase
     :quantity: The quantity of items that has been purchased
 
     """
     user = models.ForeignKey(
         'auth.User',
         verbose_name=_('User'),
+    )
+
+    identifier = models.CharField(
+        max_length=256,
+        verbose_name=_('Identifier'),
+        blank=True,
     )
 
     transaction = models.ForeignKey(
@@ -140,6 +152,25 @@ class PurchasedItem(models.Model):
         Item,
         verbose_name=_('Item'),
         null=True, blank=True,
+    )
+
+    content_type = models.ForeignKey(
+        ContentType,
+        blank=True, null=True,
+    )
+
+    object_id = models.PositiveIntegerField(
+        blank=True, null=True,
+    )
+
+    content_object = generic.GenericForeignKey(
+        'content_type',
+        'object_id',
+    )
+
+    price = models.FloatField(
+        verbose_name=_('Price'),
+        blank=True, null=True,
     )
 
     quantity = models.PositiveIntegerField(
