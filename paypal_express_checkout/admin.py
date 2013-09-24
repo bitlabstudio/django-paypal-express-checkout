@@ -46,8 +46,8 @@ class PaymentTransactionErrorAdmin(admin.ModelAdmin):
 class PurchasedItemAdmin(admin.ModelAdmin):
     """Custom admin for the ``PurchasedItem`` model."""
     list_display = [
-        'date', 'user', 'user_email', 'transaction', 'item', 'quantity',
-        'subtotal', 'total', 'status', ]
+        'date', 'user', 'user_email', 'transaction', 'item', 'price',
+        'quantity', 'subtotal', 'total', 'status', ]
     list_filter = [
         'transaction__status', 'item', ]
     search_fields = [
@@ -61,7 +61,12 @@ class PurchasedItemAdmin(admin.ModelAdmin):
         return obj.transaction.status
 
     def subtotal(self, obj):
-        return obj.item.value * obj.quantity
+        price = 0
+        if obj.item is not None:
+            price = obj.item.value
+        if obj.price:
+            price = obj.price
+        return price * obj.quantity
 
     def total(self, obj):
         return obj.transaction.value

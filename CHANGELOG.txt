@@ -1,5 +1,7 @@
 === ongoing ===
 
+- Improved subtotal column of PurchasedItem admin
+
 === 1.0 ===
 
 - BACKWARDS INCOMPATIBLE CHANGE: get_items_and_qantities must return 3-tuple
