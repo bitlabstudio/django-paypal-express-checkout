@@ -1,5 +1,9 @@
 === ongoing ===
 
+=== 1.1.1 ===
+
+- Removed duplicate transaction status
+
 === 1.1 ===
 
 - Improved subtotal column of PurchasedItem admin
