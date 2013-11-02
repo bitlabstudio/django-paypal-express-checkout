@@ -1,5 +1,7 @@
 === ongoing ===
 
+- Making app compatible with Django 1.5 and custom user models
+
 === 1.1.1 ===
 
 - Removed duplicate transaction status

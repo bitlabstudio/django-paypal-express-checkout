@@ -1,7 +1,8 @@
 """The models for the ``paypal_express_checkout`` app."""
-from django.db import models
+from django.conf import settings
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from paypal_express_checkout.constants import STATUS_CHOICES
@@ -66,7 +67,7 @@ class PaymentTransaction(models.Model):
 
     """
     user = models.ForeignKey(
-        'auth.User',
+        settings.AUTH_USER_MODEL,
         verbose_name=_('User'),
     )
 
@@ -133,7 +134,7 @@ class PurchasedItem(models.Model):
 
     """
     user = models.ForeignKey(
-        'auth.User',
+        settings.AUTH_USER_MODEL,
         verbose_name=_('User'),
     )
 
@@ -206,7 +207,7 @@ class PaymentTransactionError(models.Model):
     )
 
     user = models.ForeignKey(
-        'auth.User',
+        settings.AUTH_USER_MODEL,
         verbose_name=_('User'),
     )
 

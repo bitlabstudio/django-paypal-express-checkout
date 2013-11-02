@@ -1,7 +1,16 @@
 """Admins for the models of the ``paypal_express_checkout`` app."""
+import django
 from django.contrib import admin
 
 from . import models
+
+
+try:
+    user_model = django.contrib.auth.get_user_model()
+except AttributeError:
+    user_model = django.contrib.auth.models.User
+
+username_field = getattr(user_model, 'USERNAME_FIELD', 'username')
 
 
 class ItemAdmin(admin.ModelAdmin):
@@ -18,7 +27,7 @@ class PaymentTransactionAdmin(admin.ModelAdmin):
     list_display = [
         'date', 'user', 'user_email', 'transaction_id', 'value', 'status']
     search_fields = [
-        'transaction_id', 'status', 'user__email', 'user__username']
+        'transaction_id', 'status', 'user__email', 'user__' + username_field]
     list_filter = ['status']
     raw_id_fields = ['user', ]
 
