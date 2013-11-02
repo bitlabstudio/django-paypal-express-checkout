@@ -1,6 +1,10 @@
 === ongoing ===
 
+=== 1.2 ===
+
 - Making app compatible with Django 1.5 and custom user models
+- IMPORTANT: You must add AUTH_USER_MODEL to your settings (if you use the
+  default, set it to 'auth.User')
 
 === 1.1.1 ===
 
