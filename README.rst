@@ -162,6 +162,14 @@ Whenever you run the tests a coverage output will be generated in
 ``tests/coverage/index.html``. When adding new features, please make sure that
 you keep the coverage at 100%.
 
+Updating from v1.2 and below
+----------------------------
+
+v1.3 of this app has updated the ``factory_boy`` requirements to >2.0.0
+``factory_boy`` though has a dependency for setuptools>=0.8, which you need to
+install before upgrading your virtual environment. Otherwise running ``pip
+install --upgrade -r requirements.txt`` will fail.
+
 
 Roadmap
 -------

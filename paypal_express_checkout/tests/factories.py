@@ -7,7 +7,7 @@ from django_libs.tests.factories import UserFactory
 from .. import models
 
 
-class ItemFactory(factory.Factory):
+class ItemFactory(factory.DjangoModelFactory):
     FACTORY_FOR = models.Item
 
     name = factory.Sequence(lambda x: 'item{0}'.format(x))
@@ -15,7 +15,7 @@ class ItemFactory(factory.Factory):
     value = Decimal('10.00')
 
 
-class PaymentTransactionFactory(factory.Factory):
+class PaymentTransactionFactory(factory.DjangoModelFactory):
     FACTORY_FOR = models.PaymentTransaction
 
     user = factory.SubFactory(UserFactory)
@@ -23,7 +23,7 @@ class PaymentTransactionFactory(factory.Factory):
     value = Decimal('10.00')
 
 
-class PurchasedItemFactory(factory.Factory):
+class PurchasedItemFactory(factory.DjangoModelFactory):
     FACTORY_FOR = models.PurchasedItem
 
     user = factory.SubFactory(UserFactory)

@@ -15,6 +15,6 @@ mock==1.0.1
 django-nose==1.1
 coverage==3.5.3
 django-coverage==1.2.2
-factory-boy==1.2.0
+factory-boy>2.0.0
 django-libs==1.16
 ipdb==0.7

@@ -1,5 +1,7 @@
 === ongoing ===
 
+- updated to factory-boy > 2.0.0
+
 === 1.2 ===
 
 - Making app compatible with Django 1.5 and custom user models
