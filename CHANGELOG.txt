@@ -1,5 +1,6 @@
 === ongoing ===
 
+- Workaround for unicode bug with urllib.urlencode 
 
 === 1.3 ===
 

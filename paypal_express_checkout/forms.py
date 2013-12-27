@@ -22,6 +22,7 @@ from .models import (
     PurchasedItem,
 )
 from .settings import API_URL, LOGIN_URL
+from .utils import urlencode
 
 
 logger = logging.getLogger(__name__)
@@ -43,7 +44,7 @@ class PayPalFormMixin(object):
           this method so that it can be logged in case of an error.
 
         """
-        data = urllib.urlencode(post_data)
+        data = urlencode(post_data)
         try:
             response = urllib2.urlopen(api_url, data=data)
         except (
@@ -153,7 +154,7 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
             self.transaction.save()
             # we have to do urlencode here to make the post data more readable
             # in the error log
-            post_data_encoded = urllib.urlencode(post_data)
+            post_data_encoded = urlencode(post_data)
             self.log_error(
                 parsed_response, api_url, request_data=post_data_encoded,
                 transaction=self.transaction)
@@ -326,7 +327,7 @@ class SetExpressCheckoutFormMixin(PayPalFormMixin, forms.Form):
                 return redirect(LOGIN_URL + token)
             return LOGIN_URL + token
         elif parsed_response.get('ACK')[0] == 'Failure':
-            post_data_encoded = urllib.urlencode(post_data)
+            post_data_encoded = urlencode(post_data)
             self.log_error(
                 parsed_response, api_url=api_url,
                 request_data=post_data_encoded)
