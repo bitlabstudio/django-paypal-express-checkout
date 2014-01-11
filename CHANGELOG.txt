@@ -1,5 +1,7 @@
 === ongoing ===
 
+=== 1.5 ===
+
 - Django 1.6 compatibility changes
 
 === 1.4 ===
