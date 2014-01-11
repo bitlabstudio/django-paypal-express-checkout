@@ -1,5 +1,7 @@
 === ongoing ===
 
+- Django 1.6 compatibility changes
+
 === 1.4 ===
 
 - Workaround for unicode bug with urllib.urlencode 

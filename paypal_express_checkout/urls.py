@@ -1,5 +1,5 @@
 """The urls for the ``paypal_express_checkout`` app."""
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 
 from paypal_express_checkout.views import (
     DoExpressCheckoutView,
