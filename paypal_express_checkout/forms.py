@@ -1,7 +1,6 @@
 """Forms for the ``paypal_express_checkout`` app."""
 import httplib
 import logging
-import urllib
 import urllib2
 import urlparse
 
@@ -122,9 +121,12 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
         """Creates the post data dictionary to send to PayPal."""
         post_data = PAYPAL_DEFAULTS.copy()
         items = self.transaction.purchaseditem_set.all()
-        if len(items) != 0 and getattr(
-                items[0].item, 'currency', None) is not None:
-            currency = items[0].item.currency
+        if len(items) != 0:
+            if getattr(items[0].item, 'currency', None) is not None:
+                currency = items[0].item.currency
+            elif getattr(
+                    items[0].content_object, 'currency', None) is not None:
+                currency = items[0].content_object.currency
         else:
             currency = CURRENCYCODE
         post_data.update({

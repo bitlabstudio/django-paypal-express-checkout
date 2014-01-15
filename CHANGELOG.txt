@@ -1,5 +1,8 @@
 === ongoing ===
 
+- trying to get the currency from the content object of a booking transaction
+  in case there are no items, or the item has no currency
+
 === 1.5 ===
 
 - Django 1.6 compatibility changes
