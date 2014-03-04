@@ -23,6 +23,10 @@ setup(
     url="https://github.com/bitmazk/django-paypal-express-checkout",
     packages=find_packages(),
     include_package_data=True,
+    install_requires = [
+        'django',
+        'django_libs',
+    ],
     tests_require=[
         'fabric',
         'factory_boy',
@@ -30,6 +34,7 @@ setup(
         'coverage',
         'django-coverage',
         'mock',
+        'flake8',
         'django-libs'
     ],
     test_suite='paypal_express_checkout.tests.runtests.runtests',
