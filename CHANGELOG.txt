@@ -1,5 +1,8 @@
 === ongoing ===
 
+- IMPORTANT BUGFIX for UnboundLocalError: local variable 'currency' referenced
+  before assignment
+
 === 1.5.2 ===
 
 - better PurchasedItem admin

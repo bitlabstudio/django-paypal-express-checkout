@@ -121,13 +121,14 @@ class DoExpressCheckoutForm(PayPalFormMixin, forms.Form):
         """Creates the post data dictionary to send to PayPal."""
         post_data = PAYPAL_DEFAULTS.copy()
         items = self.transaction.purchaseditem_set.all()
+        currency = None
         if len(items) != 0:
             if getattr(items[0].item, 'currency', None) is not None:
                 currency = items[0].item.currency
             elif getattr(
                     items[0].content_object, 'currency', None) is not None:
                 currency = items[0].content_object.currency
-        else:
+        if not currency:
             currency = CURRENCYCODE
         post_data.update({
             'METHOD': 'DoExpressCheckoutPayment',
