@@ -55,10 +55,11 @@ class PaymentTransactionErrorAdmin(admin.ModelAdmin):
 class PurchasedItemAdmin(admin.ModelAdmin):
     """Custom admin for the ``PurchasedItem`` model."""
     list_display = [
-        'date', 'user', 'user_email', 'transaction', 'item', 'price',
-        'quantity', 'subtotal', 'total', 'status', ]
+        'identifier', 'date', 'user', 'user_email', 'transaction', 'item',
+        'price', 'quantity', 'subtotal', 'total', 'status',
+    ]
     list_filter = [
-        'transaction__status', 'item', ]
+        'identifier', 'transaction__status', 'item', ]
     search_fields = [
         'transaction__transaction_id', 'user__email', ]
     raw_id_fields = ['user', 'transaction', ]

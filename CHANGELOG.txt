@@ -1,5 +1,6 @@
 === ongoing ===
 
+- better PurchasedItem admin
 
 === 1.5.1 ===
 
