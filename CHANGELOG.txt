@@ -1,5 +1,7 @@
 === ongoing ===
 
+=== 1.6 ===
+
 - IMPORTANT BUGFIX for UnboundLocalError: local variable 'currency' referenced
   before assignment
 
