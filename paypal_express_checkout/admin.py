@@ -25,9 +25,12 @@ class ItemAdmin(admin.ModelAdmin):
 class PaymentTransactionAdmin(admin.ModelAdmin):
     """Custom admin for the ``PaymentTransaction`` model."""
     list_display = [
-        'date', 'user', 'user_email', 'transaction_id', 'value', 'status']
+        'creation_date', 'date', 'user', 'user_email', 'transaction_id',
+        'value', 'status',
+    ]
     search_fields = [
         'transaction_id', 'status', 'user__email', 'user__' + username_field]
+    date_hierarchy = 'creation_date'
     list_filter = ['status']
     raw_id_fields = ['user', ]
 

@@ -23,7 +23,7 @@ setup(
     url="https://github.com/bitmazk/django-paypal-express-checkout",
     packages=find_packages(),
     include_package_data=True,
-    install_requires = [
+    install_requires=[
         'django',
         'django_libs',
     ],

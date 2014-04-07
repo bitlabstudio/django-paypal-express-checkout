@@ -48,5 +48,4 @@ urlpatterns = patterns(
         IPNListenerView.as_view(),
         name='ipn_listener',
     ),
-
 )
