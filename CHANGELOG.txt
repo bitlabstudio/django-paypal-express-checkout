@@ -1,5 +1,7 @@
 === ongoing ===
 
+=== 1.7 ===
+
 - Added creation_date field to PaymentTransaction model.
 
 === 1.6 ===
