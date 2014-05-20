@@ -50,10 +50,10 @@ Add your hostname to the following settting: ::
     HOSTNAME = 'http://example.com'  # without trailing slash
 
 In case you want to test your checkout view in the browser locally, you need
-to install something like `localtunnel <http://localtunnel.com/>`_ and set
+to install something like `localtunnel <http://localtunnel.me/>`_ and set
 your hostname to your localtunnel url: ::
 
-    HOSTNAME = 'http://XXXX.localtunnel.com'
+    HOSTNAME = 'http://XXXX.localtunnel.me'
 
 For testing and development you might want to set the PayPal URLs to the
 sandbox ones in your ``local_settings.py``: ::
