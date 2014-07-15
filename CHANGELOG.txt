@@ -1,5 +1,9 @@
 === ongoing ===
 
+=== 1.7.1 ===
+
+- Fixed typo in checkout template
+
 === 1.7 ===
 
 - Added creation_date field to PaymentTransaction model.
@@ -24,7 +28,7 @@
 
 === 1.4 ===
 
-- Workaround for unicode bug with urllib.urlencode 
+- Workaround for unicode bug with urllib.urlencode
 
 === 1.3 ===
 
