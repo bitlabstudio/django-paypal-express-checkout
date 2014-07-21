@@ -13,6 +13,7 @@ from ..factories import (
     PaymentTransactionFactory,
 )
 from ...forms import PayPalFormMixin
+from ...models import PaymentTransaction
 from ...signals import payment_completed
 from ...views import DoExpressCheckoutView
 
@@ -212,8 +213,18 @@ class IPNListenerViewTestCase(ViewTestMixin, TestCase):
 
     def test_is_callable_and_sends_signal(self):
         self.is_callable(method='post', data=self.valid_data)
-
         self.assertEqual(self.received_transaction, self.transaction, msg=(
             'When the IPNListenerView is called, it should send a signal.'))
-
         self.is_not_callable()
+
+    def test_refund_transaction(self):
+        self.valid_data = {
+            'txn_id': 'SOME_NEW_ID',
+            'parent_txn_id': self.transaction.transaction_id,
+            'payment_status': 'Refunded'
+        }
+        self.is_callable(method='post', data=self.valid_data)
+        transaction = PaymentTransaction.objects.get(pk=self.transaction.pk)
+        self.assertEqual(transaction.status, 'Refunded', msg=(
+            'When the IPNListenerView is called, it should set the'
+            ' to the Refunded status.'))

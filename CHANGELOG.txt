@@ -1,5 +1,7 @@
 === ongoing ===
 
+- Improved IPN view: It can now handle refund signals.
+
 === 1.7.1 ===
 
 - Fixed typo in checkout template

@@ -137,12 +137,21 @@ class IPNListenerView(View):
     """This view handles an IPN from PayPal."""
     @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
-        transaction_id = request.POST.get('txn_id')
+        payment_status = request.POST.get('payment_status')
+
+        # In case of a refund, we will not create a new transaction. We will
+        # alter the status of the original transaction instead.
+        if payment_status == PAYMENT_STATUS['refunded']:
+            transaction_id = request.POST.get('parent_txn_id')
+        else:
+            transaction_id = request.POST.get('txn_id')
+
         try:
             self.payment_transaction = PaymentTransaction.objects.get(
                 transaction_id=transaction_id)
         except PaymentTransaction.DoesNotExist:
             raise Http404
+
         return super(IPNListenerView, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
