@@ -49,7 +49,7 @@ class PayPalFormMixin(object):
         except (
                 urllib2.HTTPError,
                 urllib2.URLError,
-                httplib.HTTPException), ex:
+                httplib.HTTPException) as ex:
             self.log_error(
                 ex, api_url=api_url, request_data=data,
                 transaction=transaction)

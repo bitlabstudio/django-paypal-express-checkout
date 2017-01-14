@@ -8,7 +8,8 @@ from .. import models
 
 
 class ItemFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = models.Item
+    class Meta:
+        model = models.Item
 
     name = factory.Sequence(lambda x: 'item{0}'.format(x))
     description = factory.Sequence(lambda x: 'item descriptio{0}'.format(x))
@@ -16,7 +17,8 @@ class ItemFactory(factory.DjangoModelFactory):
 
 
 class PaymentTransactionFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = models.PaymentTransaction
+    class Meta:
+        model = models.PaymentTransaction
 
     user = factory.SubFactory(UserFactory)
     transaction_id = factory.Sequence(lambda x: '123abc{0}'.format(x))
@@ -24,7 +26,8 @@ class PaymentTransactionFactory(factory.DjangoModelFactory):
 
 
 class PurchasedItemFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = models.PurchasedItem
+    class Meta:
+        model = models.PurchasedItem
 
     user = factory.SubFactory(UserFactory)
     transaction = factory.LazyAttribute(

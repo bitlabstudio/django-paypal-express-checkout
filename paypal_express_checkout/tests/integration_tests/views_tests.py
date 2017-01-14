@@ -3,10 +3,10 @@ from mock import Mock, patch
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.test import TestCase, RequestFactory
+from django.test import TestCase
 
 from django_libs.tests.factories import UserFactory
-from django_libs.tests.mixins import ViewTestMixin
+from django_libs.tests.mixins import ViewRequestFactoryTestMixin
 
 from ..factories import (
     ItemFactory,
@@ -15,20 +15,12 @@ from ..factories import (
 from ...forms import PayPalFormMixin
 from ...models import PaymentTransaction
 from ...signals import payment_completed
-from ...views import DoExpressCheckoutView
+from ... import views
 
 
-class PaymentViewTestCaseMixin(ViewTestMixin):
-    def should_redirect_to_login_when_anonymous(self):
-        """Custom method to overwrite the one from django_libs."""
-        url = self.get_url()
-        resp = self.client.get(url)
-        self.assertRedirects(resp, '{0}?next={1}'.format('/', url))
-
-
-class DoExpressCheckoutViewTestCase(PaymentViewTestCaseMixin, TestCase):
+class DoExpressCheckoutViewTestCase(ViewRequestFactoryTestMixin, TestCase):
     """Tests for the ``DoExpressCheckoutView`` view class."""
-    longMessage = True
+    view_class = views.DoExpressCheckoutView
 
     def get_view_name(self):
         return 'paypal_confirm'
@@ -36,7 +28,7 @@ class DoExpressCheckoutViewTestCase(PaymentViewTestCaseMixin, TestCase):
     def get_post_data(self):
         return {
             'token': self.transaction.transaction_id,
-            'payerID': 'testpayerID',
+            'PayerID': 'testpayerID',
         }
 
     def setUp(self):
@@ -61,43 +53,17 @@ class DoExpressCheckoutViewTestCase(PaymentViewTestCaseMixin, TestCase):
     def tearDown(self):
         PayPalFormMixin.call_paypal = self.old_call_paypal
 
-    def get_req_and_view(self):
-        self.login(self.user)
-        req = RequestFactory().get('/', data=self.get_post_data())
-        req.user = self.user
-        view = DoExpressCheckoutView()
-        return req, view
-
     def test_view(self):
         self.should_redirect_to_login_when_anonymous()
         self.is_callable(user=self.user, data=self.get_post_data())
-        self.is_callable('post', data=self.get_post_data())
-        self.is_not_callable()
-
-    def test_skip_confirmation(self):
-        req, view = self.get_req_and_view()
-        view.skip_confirmation = True
-        view.post = Mock()
-        view.dispatch(req)
-        self.assertEqual(view.post.call_count, 1, msg=(
-            'When called with skip_confirmation=True, the view will not'
-            ' render the template but execute the post handler instead'
-            ' of the get handler'))
-
-    def test_form_valid(self):
-        req, view = self.get_req_and_view()
-        form_mock = Mock()
-        view.form = form_mock
-        view.dispatch(req)
-        view.form_valid(view.form)
-        self.assertEqual(form_mock.do_checkout.call_count, 1, msg=(
-            'When the form is valid, the view should execute and return the'
-            ' do_checkout method of the form'))
+        self.is_postable(user=self.user, data=self.get_post_data(),
+                         to_url_name='paypal_success')
+        self.is_not_callable(user=self.user)
 
 
-class PaymentCancelViewTestCase(PaymentViewTestCaseMixin, TestCase):
+class PaymentCancelViewTestCase(ViewRequestFactoryTestMixin, TestCase):
     """Tests for the ``PaymentCancelView`` view class."""
-    longMessage = True
+    view_class = views.PaymentCancelView
 
     def get_view_name(self):
         return 'paypal_canceled'
@@ -107,12 +73,12 @@ class PaymentCancelViewTestCase(PaymentViewTestCaseMixin, TestCase):
 
     def test_view(self):
         self.should_redirect_to_login_when_anonymous()
-        self.should_be_callable_when_authenticated(self.user)
+        self.is_callable(user=self.user)
 
 
-class PaymentErrorViewTestCase(PaymentViewTestCaseMixin, TestCase):
+class PaymentErrorViewTestCase(ViewRequestFactoryTestMixin, TestCase):
     """Tests for the ``PaymentErrorView`` view class."""
-    longMessage = True
+    view_class = views.PaymentErrorView
 
     def get_view_name(self):
         return 'paypal_error'
@@ -122,12 +88,12 @@ class PaymentErrorViewTestCase(PaymentViewTestCaseMixin, TestCase):
 
     def test_view(self):
         self.should_redirect_to_login_when_anonymous()
-        self.should_be_callable_when_authenticated(self.user)
+        self.is_callable(user=self.user)
 
 
-class PaymentSuccessViewTestCase(PaymentViewTestCaseMixin, TestCase):
+class PaymentSuccessViewTestCase(ViewRequestFactoryTestMixin, TestCase):
     """Tests for the ``PaymentSuccessView`` view class."""
-    longMessage = True
+    view_class = views.PaymentSuccessView
 
     def get_view_name(self):
         return 'paypal_success'
@@ -137,12 +103,12 @@ class PaymentSuccessViewTestCase(PaymentViewTestCaseMixin, TestCase):
 
     def test_view(self):
         self.should_redirect_to_login_when_anonymous()
-        self.should_be_callable_when_authenticated(self.user)
+        self.is_callable(user=self.user)
 
 
-class SetExpressCheckoutViewTestCase(PaymentViewTestCaseMixin, TestCase):
+class SetExpressCheckoutViewTestCase(ViewRequestFactoryTestMixin, TestCase):
     """Tests for the ``SetExpressCheckoutView`` view class."""
-    longMessage = True
+    view_class = views.SetExpressCheckoutView
 
     def get_view_name(self):
         return 'paypal_checkout'
@@ -187,12 +153,15 @@ class SetExpressCheckoutViewTestCase(PaymentViewTestCaseMixin, TestCase):
     def test_view(self, call_paypal_mock):
         call_paypal_mock.return_value = self.paypal_response
         self.should_redirect_to_login_when_anonymous()
-        self.is_callable('post', data=self.data, user=self.user)
+        self.is_postable(
+            data=self.data, user=self.user,
+            to=('https://www.sandbox.paypal.com/cgi-bin/webscr'
+                '?cmd=_express-checkout&token=abc123'))
 
 
-class IPNListenerViewTestCase(ViewTestMixin, TestCase):
+class IPNListenerViewTestCase(ViewRequestFactoryTestMixin, TestCase):
     """Tests for the ``IPNListenerView`` view class."""
-    longMessage = True
+    view_class = views.IPNListenerView
 
     def get_view_name(self):
         return 'ipn_listener'
@@ -212,7 +181,7 @@ class IPNListenerViewTestCase(ViewTestMixin, TestCase):
         self.signal = payment_completed.connect(self.receive)
 
     def test_is_callable_and_sends_signal(self):
-        self.is_callable(method='post', data=self.valid_data)
+        self.is_postable(data=self.valid_data, ajax=True)
         self.assertEqual(self.received_transaction, self.transaction, msg=(
             'When the IPNListenerView is called, it should send a signal.'))
         self.is_not_callable()
@@ -223,7 +192,7 @@ class IPNListenerViewTestCase(ViewTestMixin, TestCase):
             'parent_txn_id': self.transaction.transaction_id,
             'payment_status': 'Refunded'
         }
-        self.is_callable(method='post', data=self.valid_data)
+        self.is_postable(data=self.valid_data, ajax=True)
         transaction = PaymentTransaction.objects.get(pk=self.transaction.pk)
         self.assertEqual(transaction.status, 'Refunded', msg=(
             'When the IPNListenerView is called, it should set the'

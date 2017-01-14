@@ -1,13 +1,15 @@
 """The models for the ``paypal_express_checkout`` app."""
 from django.conf import settings
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
-from paypal_express_checkout.constants import STATUS_CHOICES
+from .constants import STATUS_CHOICES
 
 
+@python_2_unicode_compatible
 class Item(models.Model):
     """
     Holds the information about an item, that is on Sale.
@@ -48,10 +50,11 @@ class Item(models.Model):
         default='USD',
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0} - {1} {2}'.format(self.name, self.value, self.currency)
 
 
+@python_2_unicode_compatible
 class PaymentTransaction(models.Model):
     """
     This model holds the information about a payment transaction.
@@ -81,7 +84,7 @@ class PaymentTransaction(models.Model):
         blank=True, null=True,
     )
 
-    content_object = generic.GenericForeignKey(
+    content_object = GenericForeignKey(
         'content_type',
         'object_id',
     )
@@ -94,7 +97,6 @@ class PaymentTransaction(models.Model):
 
     date = models.DateTimeField(
         auto_now=True,
-        auto_now_add=True,
         verbose_name=_('Time'),
     )
 
@@ -118,10 +120,11 @@ class PaymentTransaction(models.Model):
     class Meta:
         ordering = ['-creation_date', 'transaction_id', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.transaction_id
 
 
+@python_2_unicode_compatible
 class PurchasedItem(models.Model):
     """
     Keeps track of which user purchased which items (and their quantities).
@@ -171,7 +174,7 @@ class PurchasedItem(models.Model):
         blank=True, null=True,
     )
 
-    content_object = generic.GenericForeignKey(
+    content_object = GenericForeignKey(
         'content_type',
         'object_id',
     )
@@ -188,16 +191,17 @@ class PurchasedItem(models.Model):
     class Meta:
         ordering = ['-transaction__date', 'transaction__transaction_id', ]
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0} {1} of {2} [{3}]'.format(
             self.quantity, self.item, self.user.email, self.transaction)
 
 
+@python_2_unicode_compatible
 class PaymentTransactionError(models.Model):
     """
     A model to track errors during payment process.
 
-    :data: When the error ocurred.
+    :date: When the error occurred.
     :user: For which user the error occurred.
     :paypal_api_url: The API endpoint we have been calling, which has responded
       with the error.
@@ -238,4 +242,7 @@ class PaymentTransactionError(models.Model):
         PaymentTransaction,
         blank=True, null=True,
         verbose_name=_('Payment transaction'),
-    ),
+    )
+
+    def __str__(self):
+        return self.date

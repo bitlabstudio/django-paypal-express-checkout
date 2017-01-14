@@ -24,9 +24,9 @@ STATICFILES_DIRS = (
     os.path.join(__file__, 'test_static'),
 )
 
-TEMPLATE_DIRS = (
-    os.path.join(os.path.dirname(__file__), '../templates'),
-)
+TEMPLATES = {
+    "DIRS": [os.path.join(os.path.dirname(__file__), '../templates')],
+}
 
 COVERAGE_REPORT_HTML_OUTPUT_DIR = os.path.join(
     os.path.dirname(__file__), 'coverage')
@@ -57,7 +57,6 @@ EXTERNAL_APPS = [
 ]
 
 INTERNAL_APPS = [
-    'django_nose',
     'paypal_express_checkout',
 ]
 
@@ -67,6 +66,8 @@ COVERAGE_MODULE_EXCLUDES += EXTERNAL_APPS
 
 # this leads to the dummy home page added for testing purposes.
 LOGIN_URL = '/'
+
+SECRET_KEY = 'foo'
 
 
 # ======================

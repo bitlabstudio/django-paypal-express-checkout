@@ -1,8 +1,11 @@
 *.egg-info/
 *.pyc
-.ropeproject
-.tox
-chromedriver.log
-coverage/
+*coverage/
+.tox/
+.coverage
+app_media/
+app_static/
+build/
 db.sqlite
 dist/
+docs/_build/

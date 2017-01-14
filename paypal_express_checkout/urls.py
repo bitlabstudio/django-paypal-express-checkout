@@ -1,5 +1,5 @@
 """The urls for the ``paypal_express_checkout`` app."""
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from paypal_express_checkout.views import (
     DoExpressCheckoutView,
@@ -11,8 +11,7 @@ from paypal_express_checkout.views import (
 )
 
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(
         r'^$',
         SetExpressCheckoutView.as_view(),
@@ -48,4 +47,4 @@ urlpatterns = patterns(
         IPNListenerView.as_view(),
         name='ipn_listener',
     ),
-)
+]

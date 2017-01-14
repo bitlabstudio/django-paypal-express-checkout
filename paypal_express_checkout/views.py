@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import FormView, TemplateView, View
 from django.utils.decorators import method_decorator
 
-from django_libs.utils import conditional_decorator
+from django_libs.utils.decorators import conditional_decorator
 
 from . import settings
 from .constants import PAYMENT_STATUS
@@ -69,7 +69,6 @@ class DoExpressCheckoutView(PaymentViewMixin, FormView):
 
         if self.skip_confirmation:
             self.user = request.user
-            self.request = request
             return self.post(request, *args, **kwargs)
         return super(DoExpressCheckoutView, self).dispatch(
             request, *args, **kwargs)

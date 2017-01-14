@@ -4,5 +4,5 @@ import urllib
 
 def urlencode(data):
     for key, value in data.iteritems():
-        data[key] = unicode(value).encode('utf-8')
+        data[key] = str(value).encode('utf-8')
     return urllib.urlencode(data)

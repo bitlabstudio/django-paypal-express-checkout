@@ -1,0 +1,9 @@
+fabric3
+mock
+coverage
+django-coverage
+factory-boy
+django-libs
+ipdb
+flake8
+tox

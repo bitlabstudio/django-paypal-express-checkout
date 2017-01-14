@@ -1,5 +1,7 @@
 === ongoing ===
 
+- Prepared app for Django 1.10
+
 === 1.8 ===
 
 - Improved IPN view: It can now handle refund signals.
