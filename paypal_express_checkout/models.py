@@ -51,7 +51,7 @@ class Item(models.Model):
     )
 
     def __str__(self):
-        return '{0} - {1} {2}'.format(self.name, self.value, self.currency)
+        return u'{0} - {1} {2}'.format(self.name, self.value, self.currency)
 
 
 @python_2_unicode_compatible
@@ -192,7 +192,7 @@ class PurchasedItem(models.Model):
         ordering = ['-transaction__date', 'transaction__transaction_id', ]
 
     def __str__(self):
-        return '{0} {1} of {2} [{3}]'.format(
+        return u'{0} {1} of {2} [{3}]'.format(
             self.quantity, self.item, self.user.email, self.transaction)
 
 
@@ -245,4 +245,4 @@ class PaymentTransactionError(models.Model):
     )
 
     def __str__(self):
-        return self.date
+        return str(self.date)
